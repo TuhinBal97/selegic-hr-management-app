@@ -18,6 +18,9 @@ export default class AttendanceMonthlyView extends LightningElement {
     isSaving = false;
     isLoading = false;
     loadRequestId = 0;
+    stickyUpdateFrame = null;
+    stickyScrollTargets = [];
+    stickyScrollListenersAttached = false;
 
     // None means the status is pending. Legacy LOP records are counted as Absent.
     statusOptions = [
@@ -48,8 +51,102 @@ export default class AttendanceMonthlyView extends LightningElement {
     yearOptions = this.generateYearOptions();
 
     connectedCallback() {
+        document.addEventListener('scroll', this.handleViewportScroll, true);
+        window.addEventListener('scroll', this.handleViewportScroll, true);
+        window.addEventListener('resize', this.handleViewportScroll);
         this.generateDays();
         this.loadMonthlyData();
+    }
+
+    renderedCallback() {
+        this.attachStickyScrollListeners();
+        this.updateStickyArea();
+    }
+
+    disconnectedCallback() {
+        document.removeEventListener('scroll', this.handleViewportScroll, true);
+        window.removeEventListener('scroll', this.handleViewportScroll, true);
+        window.removeEventListener('resize', this.handleViewportScroll);
+        this.stickyScrollTargets.forEach((target) => {
+            target.removeEventListener('scroll', this.handleViewportScroll, true);
+        });
+        this.stickyScrollTargets = [];
+        this.stickyScrollListenersAttached = false;
+        if (this.stickyUpdateFrame !== null) {
+            cancelAnimationFrame(this.stickyUpdateFrame);
+            this.stickyUpdateFrame = null;
+        }
+    }
+
+    attachStickyScrollListeners() {
+        if (this.stickyScrollListenersAttached) {
+            return;
+        }
+
+        this.stickyScrollListenersAttached = true;
+        let currentElement = this.template.host;
+        while (currentElement) {
+            this.stickyScrollTargets.push(currentElement);
+            if (currentElement.parentElement) {
+                currentElement = currentElement.parentElement;
+            } else {
+                const root = currentElement.getRootNode();
+                currentElement = root && root.host ? root.host : null;
+            }
+        }
+
+        this.stickyScrollTargets.forEach((target) => {
+            target.addEventListener('scroll', this.handleViewportScroll, true);
+        });
+    }
+
+    handleViewportScroll = () => {
+        if (this.stickyUpdateFrame !== null) {
+            return;
+        }
+
+        this.stickyUpdateFrame = requestAnimationFrame(() => {
+            this.stickyUpdateFrame = null;
+            this.updateStickyArea();
+        });
+    };
+
+    updateStickyArea() {
+        const viewShell = this.template.querySelector('.attendance-view-shell');
+        const fixedArea = this.template.querySelector('.attendance-fixed-area');
+        const fixedAreaSpacer = this.template.querySelector('.attendance-fixed-area-spacer');
+
+        if (!viewShell || !fixedArea || !fixedAreaSpacer) {
+            return;
+        }
+
+        const fixedAreaHeight = fixedArea.offsetHeight;
+        if (!fixedAreaHeight) {
+            return;
+        }
+
+        // Preserve the space used by the title, filters, legend, and date header.
+        fixedAreaSpacer.style.height = `${fixedAreaHeight}px`;
+
+        const viewBounds = viewShell.getBoundingClientRect();
+        const shouldFixArea = viewBounds.top < 0 && viewBounds.bottom > fixedAreaHeight;
+        fixedArea.classList.toggle('is-fixed', shouldFixArea);
+
+        if (shouldFixArea) {
+            fixedArea.style.left = `${viewBounds.left}px`;
+            fixedArea.style.width = `${viewBounds.width}px`;
+        } else {
+            fixedArea.style.left = '';
+            fixedArea.style.width = '';
+        }
+    }
+
+    handleGridScroll(event) {
+        const stickyHeaderScroller = this.template.querySelector('.attendance-sticky-header-scroll');
+        if (stickyHeaderScroller) {
+            stickyHeaderScroller.scrollLeft = event.target.scrollLeft;
+        }
+        this.updateStickyArea();
     }
 
     generateYearOptions() {
