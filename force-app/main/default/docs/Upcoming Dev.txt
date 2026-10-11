@@ -1,0 +1,7 @@
+1. Learn the git and git hub
+
+2. Excel upload features
+3. Add multi select filter ---  to compare employeee attendance on the specific months 
+resizable columns
+
+For each employee create fields 1 to 30 according to month dates -- for each month each employee has single record containning the whole months's attendance record

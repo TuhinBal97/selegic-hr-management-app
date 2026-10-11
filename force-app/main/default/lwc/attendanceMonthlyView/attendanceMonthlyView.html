@@ -1,0 +1,124 @@
+<template>
+    <lightning-card title="Attendance Tracker">
+        <div class="slds-p-around_medium">
+            <div class="slds-grid slds-gutters">
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-combobox
+                        name="month"
+                        label="Month"
+                        value={selectedMonth}
+                        options={monthOptions}
+                        onchange={handleMonthChange}
+                        disabled={isSaving}>
+                    </lightning-combobox>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-combobox
+                        name="year"
+                        label="Year"
+                        value={selectedYear}
+                        options={yearOptions}
+                        onchange={handleYearChange}
+                        disabled={isSaving}>
+                    </lightning-combobox>
+                </div>
+            </div>
+
+            <div class="slds-m-top_large">
+                <lightning-card title="Attendance Grid">
+                    <div class="slds-p-around_medium">
+                        <p class="slds-text-body_small slds-m-bottom_small">
+                            Pending means no status has been recorded; only an explicit Absent choice counts as Absent. Weekends default to Weekly Off, and you can record work on weekends or holidays.
+                        </p>
+                        <div class="status-legend">
+                            <div class="legend-item">
+                                <span class="legend-box status-wfh"></span><span>WFH</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-box status-wfo"></span><span>WFO</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-box status-absent"></span><span>Absent</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-box status-none"></span><span>Pending</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-box status-leave"></span><span>Leave</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-box status-wo"></span><span>Weekly Off</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-box status-holiday"></span><span>Holiday</span>
+                            </div>
+                        </div>
+
+                        <div class="slds-scrollable_x attendance-grid-scroll slds-is-relative">
+                            <template lwc:if={isLoading}>
+                                <lightning-spinner
+                                    alternative-text="Loading attendance"
+                                    size="medium">
+                                </lightning-spinner>
+                            </template>
+                            <table class="slds-table slds-table_bordered slds-table_cell-buffer attendance-table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" class="employee-column">Employee</th>
+                                        <template for:each={days} for:item="day">
+                                            <th scope="col" key={day.date} class="day-column">
+                                                <div>{day.dayNumber}</div>
+                                                <div>{day.dayName}</div>
+                                            </th>
+                                        </template>
+                                        <th scope="col" class="summary-column">WFH</th>
+                                        <th scope="col" class="summary-column">WFO</th>
+                                        <th scope="col" class="summary-column">Absent</th>
+                                        <th scope="col" class="summary-column">Leave</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template for:each={employeeRows} for:item="row">
+                                        <tr key={row.employeeId}>
+                                            <th scope="row" class="employee-column">{row.employeeName}</th>
+                                            <template for:each={row.days} for:item="day">
+                                                <td key={day.date} title={day.tooltip}>
+                                                    <span class={day.statusControlClass}>
+                                                        <lightning-button-menu
+                                                            label={day.statusLabel}
+                                                            alternative-text={day.accessibleLabel}
+                                                            variant="bare"
+                                                            size="medium"
+                                                            menu-alignment="auto"
+                                                            class="status-menu"
+                                                            data-employee-id={row.employeeId}
+                                                            data-date={day.date}
+                                                            onselect={handleCellStatusChange}
+                                                            disabled={isSaving}>
+                                                            <template for:each={day.statusOptions} for:item="option">
+                                                                <lightning-menu-item
+                                                                    key={option.value}
+                                                                    label={option.label}
+                                                                    value={option.value}
+                                                                    checked={option.checked}>
+                                                                </lightning-menu-item>
+                                                            </template>
+                                                        </lightning-button-menu>
+                                                    </span>
+                                                </td>
+                                            </template>
+                                            <td class="summary-cell">{row.wfhCount}</td>
+                                            <td class="summary-cell">{row.wfoCount}</td>
+                                            <td class="summary-cell">{row.absentCount}</td>
+                                            <td class="summary-cell">{row.leaveCount}</td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </lightning-card>
+            </div>
+        </div>
+    </lightning-card>
+</template>
