@@ -1,0 +1,56 @@
+<template>
+    <section class="summary-card" aria-labelledby="summary-heading">
+        <header class="summary-header">
+            <div>
+                <h2 id="summary-heading">Attendance summary</h2>
+                <p class="period-label">{periodLabel}</p>
+            </div>
+        </header>
+
+        <template lwc:if={loading}>
+            <p class="summary-message">Loading attendance summary…</p>
+        </template>
+        <template lwc:elseif={hasRecords}>
+            <div class="chart-layout">
+                <div class="donut-frame">
+                    <svg
+                        class="donut-svg"
+                        viewBox="0 0 120 120"
+                        role="img"
+                        aria-label={chartAccessibleLabel}>
+                        <g transform="rotate(-90 60 60)">
+                            <circle class="donut-track" cx="60" cy="60" r="45"></circle>
+                            <template for:each={metrics} for:item="metric">
+                                <circle
+                                    key={metric.key}
+                                    class={metric.segmentClass}
+                                    cx="60"
+                                    cy="60"
+                                    r="45"
+                                    stroke-dasharray={metric.dashArray}
+                                    stroke-dashoffset={metric.dashOffset}>
+                                </circle>
+                            </template>
+                        </g>
+                    </svg>
+                    <div class="donut-center" aria-hidden="true">
+                        <span>Monthly<br />status mix</span>
+                    </div>
+                </div>
+
+                <ul class="chart-legend" aria-label="Attendance status percentages">
+                    <template for:each={metrics} for:item="metric">
+                        <li key={metric.key} class="legend-row">
+                            <span class={metric.swatchClass} aria-hidden="true"></span>
+                            <span class="legend-label">{metric.label}</span>
+                            <strong class="legend-percentage">{metric.percentageLabel}</strong>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+        </template>
+        <template lwc:else>
+            <p class="summary-message">No attendance statuses are recorded for this month yet.</p>
+        </template>
+    </section>
+</template>

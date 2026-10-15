@@ -1,0 +1,195 @@
+:host {
+    display: block;
+    margin: 0.75rem 0;
+    color: var(--attendance-text, #181818);
+}
+
+.summary-card {
+    padding: 1rem;
+    border: 1px solid var(--attendance-border, #d8dde6);
+    border-radius: 0.75rem;
+    background: var(--attendance-surface, #ffffff);
+    box-shadow: 0 1px 3px rgba(24, 24, 24, 0.08);
+}
+
+.summary-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.875rem;
+}
+
+.summary-header h2 {
+    margin: 0;
+    color: var(--attendance-text, #181818);
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.period-label,
+.summary-message {
+    color: var(--attendance-muted-text, #5c6470);
+}
+
+.period-label {
+    margin: 0.125rem 0 0;
+    font-size: 0.8125rem;
+}
+
+.chart-layout {
+    display: grid;
+    grid-template-columns: minmax(14rem, 18rem) minmax(0, 1fr);
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.donut-frame {
+    position: relative;
+    width: 100%;
+    max-width: 18rem;
+    margin: 0 auto;
+    aspect-ratio: 1;
+}
+
+.donut-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.donut-track,
+.donut-segment {
+    fill: none;
+    stroke-width: 20;
+}
+
+.donut-track {
+    stroke: var(--attendance-border, #e5e7eb);
+}
+
+.donut-segment {
+    stroke-linecap: butt;
+}
+
+.donut-segment.status-wfh {
+    stroke: var(--attendance-status-wfh, #bde0fe);
+}
+
+.legend-swatch.status-wfh {
+    background-color: var(--attendance-status-wfh, #bde0fe);
+}
+
+.donut-segment.status-wfo {
+    stroke: var(--attendance-status-wfo, #b7e4c7);
+}
+
+.legend-swatch.status-wfo {
+    background-color: var(--attendance-status-wfo, #b7e4c7);
+}
+
+.donut-segment.status-leave {
+    stroke: var(--attendance-status-leave, #fff1c7);
+}
+
+.legend-swatch.status-leave {
+    background-color: var(--attendance-status-leave, #fff1c7);
+}
+
+.donut-segment.status-absent {
+    stroke: var(--attendance-status-absent, #f8d7da);
+}
+
+.legend-swatch.status-absent {
+    background-color: var(--attendance-status-absent, #f8d7da);
+}
+
+.donut-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    text-align: center;
+}
+
+.donut-center strong {
+    color: var(--attendance-text, #181818);
+    font-size: 1.75rem;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+}
+
+.donut-center span {
+    margin-top: 0.2rem;
+    color: var(--attendance-muted-text, #5c6470);
+    font-size: 0.75rem;
+}
+
+.chart-legend {
+    display: grid;
+    gap: 0.875rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.legend-row {
+    display: grid;
+    grid-template-columns: auto max-content max-content;
+    align-items: center;
+    justify-content: start;
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+.legend-swatch {
+    display: inline-block;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+}
+
+.legend-label {
+    overflow: hidden;
+    color: var(--attendance-muted-text, #344054);
+    font-size: 0.875rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.legend-percentage {
+    color: var(--attendance-text, #181818);
+    font-size: 0.875rem;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    font-weight: 700;
+}
+
+.summary-message {
+    margin: 0;
+    font-size: 0.8125rem;
+}
+
+@media (max-width: 40rem) {
+    .chart-layout {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    .donut-frame {
+        max-width: 15rem;
+    }
+
+    .chart-legend {
+        width: 100%;
+    }
+}
+
+@media (max-width: 25rem) {
+    .summary-card {
+        padding: 0.75rem;
+    }
+}

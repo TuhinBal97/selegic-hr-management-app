@@ -58,6 +58,21 @@ export default class AttendanceMonthlyView extends LightningElement {
         return this.isLoading || this.isSaving || this.employeeRows.length === 0;
     }
 
+    get attendanceSummary() {
+        return this.employeeRows.reduce((totals, row) => {
+            totals.wfhCount += Number(row.wfhCount) || 0;
+            totals.wfoCount += Number(row.wfoCount) || 0;
+            totals.absentCount += Number(row.absentCount) || 0;
+            totals.leaveCount += Number(row.monthlyLeaveCount) || 0;
+            return totals;
+        }, { wfhCount: 0, wfoCount: 0, absentCount: 0, leaveCount: 0 });
+    }
+
+    get summaryPeriod() {
+        const month = this.monthOptions.find(option => option.value === this.selectedMonth);
+        return `${month ? month.label : ''} ${this.selectedYear}`.trim();
+    }
+
     connectedCallback() {
         document.addEventListener('scroll', this.handleViewportScroll, true);
         window.addEventListener('scroll', this.handleViewportScroll, true);
@@ -133,9 +148,7 @@ export default class AttendanceMonthlyView extends LightningElement {
             return;
         }
 
-        // Preserve the space used by the title, filters, legend, and date header.
         fixedAreaSpacer.style.height = `${fixedAreaHeight}px`;
-
         const viewBounds = viewShell.getBoundingClientRect();
         const shouldFixArea = viewBounds.top < 0 && viewBounds.bottom > fixedAreaHeight;
         fixedArea.classList.toggle('is-fixed', shouldFixArea);
@@ -202,9 +215,7 @@ export default class AttendanceMonthlyView extends LightningElement {
         ];
         const rows = this.employeeRows.map(row => [
             row.employeeName,
-            ...row.days.map(day =>
-                day.statusLabel === 'Select status' ? 'Pending' : day.statusLabel
-            ),
+            ...row.days.map(day => day.statusLabel === 'Select status' ? 'Pending' : day.statusLabel),
             row.wfhCount,
             row.wfoCount,
             row.absentCount,
@@ -227,7 +238,6 @@ export default class AttendanceMonthlyView extends LightningElement {
         }
 
         try {
-            // Lightning Web Security blocks text/csv MIME types; text/plain is allowed.
             const csvBlob = new Blob(['\uFEFF', csvContent], { type: 'text/plain' });
             const downloadUrl = URL.createObjectURL(csvBlob);
             downloadLink.href = downloadUrl;
@@ -251,7 +261,7 @@ export default class AttendanceMonthlyView extends LightningElement {
         return `"${safeText.replace(/"/g, '""')}"`;
     }
 
-    // Build date strings ourselves so they remain YYYY-MM-DD in every browser timezone.
+    // Build date strings ourselves so they remain YYYY-MM-DD in every browser timezone. creating every date in a month
     generateDays() {
         const year = Number(this.selectedYear);
         const month = Number(this.selectedMonth);
@@ -274,6 +284,7 @@ export default class AttendanceMonthlyView extends LightningElement {
         this.days = days;
     }
 
+    //loading data from Salesforce
     loadMonthlyData() {
         const requestId = ++this.loadRequestId;
         this.isLoading = true;
@@ -341,7 +352,6 @@ export default class AttendanceMonthlyView extends LightningElement {
         });
         const leaveAllocationsByEmployee = new Map();
         this.leaveAllocationRecords.forEach(record => {
-            // The newest record wins if an employee has duplicate allocations for a year.
             if (!leaveAllocationsByEmployee.has(record.Employee__c)) {
                 leaveAllocationsByEmployee.set(record.Employee__c, record);
             }
@@ -350,7 +360,8 @@ export default class AttendanceMonthlyView extends LightningElement {
             const counts = {
                 wfhCount: 0,
                 wfoCount: 0,
-                absentCount: 0
+                absentCount: 0,
+                monthlyLeaveCount: 0
             };
 
             const employeeDays = this.days.map(day => {
@@ -360,7 +371,7 @@ export default class AttendanceMonthlyView extends LightningElement {
                 );
                 const isHoliday = Boolean(holiday);
                 const isWeekend = day.isWeekend;
-                const attendanceStatus = attendance?.Status__c ||
+                const attendanceStatus = attendance?.Status__c ||        //The ?. operator is called optional chaining. It safely accesses Status__c when attendance exists.
                     (isHoliday ? 'Holiday' : (isWeekend ? 'Weekly_Off' : ''));
                 const displayedStatus = attendanceStatus === 'LOP' ? 'Absent' : attendanceStatus;
                 const selectedOption = this.statusOptions.find(
@@ -378,6 +389,9 @@ export default class AttendanceMonthlyView extends LightningElement {
                         case 'Absent':
                         case 'LOP': // Legacy LOP records are counted as Absent.
                             counts.absentCount += 1;
+                            break;
+                        case 'Leave':
+                            counts.monthlyLeaveCount += 1;
                             break;
                         default:
                             break;
@@ -422,9 +436,7 @@ export default class AttendanceMonthlyView extends LightningElement {
                 employeeName: employee.Name,
                 days: employeeDays,
                 leaveCount: yearToDateLeaveCount,
-                allocatedLeaveCount: allocatedLeaveCount === null
-                    ? '—'
-                    : allocatedLeaveCount,
+                allocatedLeaveCount: allocatedLeaveCount === null ? '—' : allocatedLeaveCount,
                 remainingLeaveCount: allocatedLeaveCount === null
                     ? '—'
                     : allocatedLeaveCount - yearToDateLeaveCount,

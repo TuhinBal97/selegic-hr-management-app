@@ -2,7 +2,7 @@
     <div class="attendance-view-shell">
         <div class="attendance-fixed-area-spacer"></div>
         <div class="attendance-fixed-area">
-            <h2 class="attendance-title">Selegic's Attendance Tracker</h2>
+            <h2 class="attendance-title">Selegic Attendance Tracker</h2>
             <a class="attendance-export-link slds-hide" tabindex="-1"></a>
             <div class="attendance-tracker-body">
                 <div class="attendance-controls">
@@ -81,8 +81,8 @@
                                             <th scope="col" class="summary-column">WFO</th>
                                             <th scope="col" class="summary-column">Absent</th>
                                             <th scope="col" class="summary-column" title="Leave taken from January through the selected month">Leave</th>
-                                            <th scope="col" class="summary-column leave-summary-column" title="Total allocated leaves from the employee's leave allocation">Total Alloc.</th>
-                                            <th scope="col" class="summary-column leave-summary-column remaining-summary-column" title="Allocation less leave taken from January through the selected month">Remaining</th>
+                                            <th scope="col" class="summary-column leave-summary-column" title="Total allocated leaves from the employee's leave allocation">Allocated</th>
+                                            <th scope="col" class="summary-column remaining-summary-column" title="Allocation less leave taken from January through the selected month">Remaining</th>
                                         </tr>
                                     </thead>
                                 </table>
@@ -94,7 +94,11 @@
             </div>
         </div>
 
-        <div class="attendance-grid-scroll slds-is-relative" onscroll={handleGridScroll}>
+        <div
+            class="attendance-grid-scroll slds-is-relative"
+            onscroll={handleGridScroll}
+            tabindex="0"
+            aria-label="Attendance grid. Scroll horizontally to view every date and the leave totals.">
             <template lwc:if={isLoading}>
                 <lightning-spinner
                     alternative-text="Loading attendance"
@@ -115,8 +119,8 @@
                         <th scope="col" class="summary-column">WFO</th>
                         <th scope="col" class="summary-column">Absent</th>
                         <th scope="col" class="summary-column" title="Leave taken from January through the selected month">Leave</th>
-                        <th scope="col" class="summary-column leave-summary-column" title="Total allocated leaves from the employee's leave allocation">Total Alloc.</th>
-                        <th scope="col" class="summary-column leave-summary-column remaining-summary-column" title="Allocation less leave taken from January through the selected month">Remaining</th>
+                        <th scope="col" class="summary-column leave-summary-column" title="Total allocated leaves from the employee's leave allocation">Allocated</th>
+                        <th scope="col" class="summary-column remaining-summary-column" title="Allocation less leave taken from January through the selected month">Remaining</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -160,5 +164,11 @@
                 </tbody>
             </table>
         </div>
+
+        <c-attendance-summary-chart
+            summary={attendanceSummary}
+            period-label={summaryPeriod}
+            loading={isLoading}>
+        </c-attendance-summary-chart>
     </div>
 </template>
