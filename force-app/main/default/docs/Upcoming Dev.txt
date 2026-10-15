@@ -4,4 +4,14 @@
 3. Add multi select filter ---  to compare employeee attendance on the specific months 
 resizable columns
 
-For each employee create fields 1 to 30 according to month dates -- for each month each employee has single record containning the whole months's attendance record
+4. For each employee create fields 1 to 30 according to month dates -- for each month each employee has single record containning the whole months's attendance record
+
+5. Use the theme: dark and white 
+
+6. use Excel Export and Import ------ feature
+
+7.
+
+8.
+
+9. also include a column for every employees for the left over leaves

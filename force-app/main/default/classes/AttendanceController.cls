@@ -38,6 +38,43 @@ public with sharing class AttendanceController {
         ];
     }
 
+    // Leaves remaining are calculated from January through the selected month.
+    @AuraEnabled(cacheable=true)
+    public static List<Attendance__c> getYearToDateLeaves(
+        Integer month,
+        Integer year
+    ) {
+        Date startDate = Date.newInstance(year, 1, 1);
+        Date endDate = Date.newInstance(year, month, 1).addMonths(1).addDays(-1);
+
+        return [
+            SELECT Employee__c, Attendance_Date__c, Status__c
+            FROM Attendance__c
+            WHERE Attendance_Date__c >= :startDate
+            AND Attendance_Date__c <= :endDate
+            AND Status__c = 'Leave'
+        ];
+    }
+
+    // Allocation records are specific to the selected leave year.
+    @AuraEnabled(cacheable=true)
+    public static List<Employee_Leave_Allocation__c> getEmployeeLeaveAllocations(
+        Integer leaveYear
+    ) {
+        if (leaveYear == null) {
+            throw new AuraHandledException('A leave year is required.');
+        }
+
+        return [
+            SELECT
+                Employee__c,
+                Total_Allocated_Leaves__c
+            FROM Employee_Leave_Allocation__c
+            WHERE Leave_Year__c = :leaveYear
+            ORDER BY CreatedDate DESC
+        ];
+    }
+
     // Method 3 - Get Monthly Holidays
     @AuraEnabled(cacheable=true)
     public static List<Holiday__c> getMonthlyHolidays(

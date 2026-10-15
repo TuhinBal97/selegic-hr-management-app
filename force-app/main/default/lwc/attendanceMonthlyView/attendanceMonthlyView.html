@@ -2,28 +2,40 @@
     <div class="attendance-view-shell">
         <div class="attendance-fixed-area-spacer"></div>
         <div class="attendance-fixed-area">
-            <h2 class="attendance-title">Attendance Tracker</h2>
+            <h2 class="attendance-title">Selegic's Attendance Tracker</h2>
+            <a class="attendance-export-link slds-hide" tabindex="-1"></a>
             <div class="attendance-tracker-body">
-                <div class="slds-grid slds-gutters">
-                    <div class="slds-col slds-size_1-of-2">
-                        <lightning-combobox
-                            name="month"
-                            label="Month"
-                            value={selectedMonth}
-                            options={monthOptions}
-                            onchange={handleMonthChange}
-                            disabled={isSaving}>
-                        </lightning-combobox>
+                <div class="attendance-controls">
+                    <div class="attendance-date-filters">
+                        <div class="attendance-filter">
+                            <lightning-combobox
+                                name="month"
+                                label="Month"
+                                value={selectedMonth}
+                                options={monthOptions}
+                                onchange={handleMonthChange}
+                                disabled={isSaving}>
+                            </lightning-combobox>
+                        </div>
+                        <div class="attendance-filter">
+                            <lightning-combobox
+                                name="year"
+                                label="Year"
+                                value={selectedYear}
+                                options={yearOptions}
+                                onchange={handleYearChange}
+                                disabled={isSaving}>
+                            </lightning-combobox>
+                        </div>
                     </div>
-                    <div class="slds-col slds-size_1-of-2">
-                        <lightning-combobox
-                            name="year"
-                            label="Year"
-                            value={selectedYear}
-                            options={yearOptions}
-                            onchange={handleYearChange}
-                            disabled={isSaving}>
-                        </lightning-combobox>
+                    <div>
+                        <lightning-button
+                            label="Export to Excel"
+                            title="Download this month’s attendance as a CSV file for Excel"
+                            icon-name="utility:download"
+                            onclick={handleExport}
+                            disabled={isExportDisabled}>
+                        </lightning-button>
                     </div>
                 </div>
 
@@ -68,7 +80,9 @@
                                             <th scope="col" class="summary-column">WFH</th>
                                             <th scope="col" class="summary-column">WFO</th>
                                             <th scope="col" class="summary-column">Absent</th>
-                                            <th scope="col" class="summary-column">Leave</th>
+                                            <th scope="col" class="summary-column" title="Leave taken from January through the selected month">Leave</th>
+                                            <th scope="col" class="summary-column leave-summary-column" title="Total allocated leaves from the employee's leave allocation">Total Alloc.</th>
+                                            <th scope="col" class="summary-column leave-summary-column remaining-summary-column" title="Allocation less leave taken from January through the selected month">Remaining</th>
                                         </tr>
                                     </thead>
                                 </table>
@@ -100,7 +114,9 @@
                         <th scope="col" class="summary-column">WFH</th>
                         <th scope="col" class="summary-column">WFO</th>
                         <th scope="col" class="summary-column">Absent</th>
-                        <th scope="col" class="summary-column">Leave</th>
+                        <th scope="col" class="summary-column" title="Leave taken from January through the selected month">Leave</th>
+                        <th scope="col" class="summary-column leave-summary-column" title="Total allocated leaves from the employee's leave allocation">Total Alloc.</th>
+                        <th scope="col" class="summary-column leave-summary-column remaining-summary-column" title="Allocation less leave taken from January through the selected month">Remaining</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -137,6 +153,8 @@
                             <td class="summary-cell">{row.wfoCount}</td>
                             <td class="summary-cell">{row.absentCount}</td>
                             <td class="summary-cell">{row.leaveCount}</td>
+                            <td class="summary-cell leave-summary-cell">{row.allocatedLeaveCount}</td>
+                            <td class="summary-cell leave-summary-cell remaining-summary-column">{row.remainingLeaveCount}</td>
                         </tr>
                     </template>
                 </tbody>

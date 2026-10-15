@@ -3,6 +3,8 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 import getActiveEmployees from '@salesforce/apex/AttendanceController.getActiveEmployees';
 import getMonthlyAttendance from '@salesforce/apex/AttendanceController.getMonthlyAttendance';
+import getYearToDateLeaves from '@salesforce/apex/AttendanceController.getYearToDateLeaves';
+import getEmployeeLeaveAllocations from '@salesforce/apex/AttendanceController.getEmployeeLeaveAllocations';
 import getMonthlyHolidays from '@salesforce/apex/AttendanceController.getMonthlyHolidays';
 import saveAttendance from '@salesforce/apex/AttendanceController.saveAttendance';
 
@@ -12,6 +14,8 @@ export default class AttendanceMonthlyView extends LightningElement {
 
     employees = [];
     attendanceRecords = [];
+    yearToDateLeaveRecords = [];
+    leaveAllocationRecords = [];
     holidayRecords = [];
     days = [];
     employeeRows = [];
@@ -49,6 +53,10 @@ export default class AttendanceMonthlyView extends LightningElement {
     ];
 
     yearOptions = this.generateYearOptions();
+
+    get isExportDisabled() {
+        return this.isLoading || this.isSaving || this.employeeRows.length === 0;
+    }
 
     connectedCallback() {
         document.addEventListener('scroll', this.handleViewportScroll, true);
@@ -172,6 +180,77 @@ export default class AttendanceMonthlyView extends LightningElement {
         this.loadMonthlyData();
     }
 
+    handleExport() {
+        if (this.employeeRows.length === 0) {
+            this.showToast(
+                'No attendance to export',
+                'There are no employees in this month’s attendance view.',
+                'info'
+            );
+            return;
+        }
+
+        const headers = [
+            'Employee',
+            ...this.days.map(day => `${String(day.dayNumber).padStart(2, '0')} ${day.dayName}`),
+            'WFH',
+            'WFO',
+            'Absent',
+            'Leave (YTD)',
+            'Total Allocated',
+            'Remaining'
+        ];
+        const rows = this.employeeRows.map(row => [
+            row.employeeName,
+            ...row.days.map(day =>
+                day.statusLabel === 'Select status' ? 'Pending' : day.statusLabel
+            ),
+            row.wfhCount,
+            row.wfoCount,
+            row.absentCount,
+            row.leaveCount,
+            row.allocatedLeaveCount,
+            row.remainingLeaveCount
+        ]);
+        const csvContent = [headers, ...rows]
+            .map(row => row.map(value => this.escapeCsvValue(value)).join(','))
+            .join('\r\n');
+        const downloadLink = this.template.querySelector('.attendance-export-link');
+
+        if (!downloadLink) {
+            this.showToast(
+                'Could not export attendance',
+                'The download link is unavailable. Refresh the page and try again.',
+                'error'
+            );
+            return;
+        }
+
+        try {
+            // Lightning Web Security blocks text/csv MIME types; text/plain is allowed.
+            const csvBlob = new Blob(['\uFEFF', csvContent], { type: 'text/plain' });
+            const downloadUrl = URL.createObjectURL(csvBlob);
+            downloadLink.href = downloadUrl;
+            downloadLink.download = `attendance-${this.selectedYear}-${this.selectedMonth.padStart(2, '0')}.csv`;
+            downloadLink.click();
+            window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+            this.showToast(
+                'Export ready',
+                'The selected month’s attendance was downloaded as a CSV file for Excel.',
+                'success'
+            );
+        } catch (error) {
+            this.showToast('Could not export attendance', this.getErrorMessage(error), 'error');
+        }
+    }
+
+    escapeCsvValue(value) {
+        const text = value === null || value === undefined ? '' : String(value);
+        const isFormulaText = typeof value === 'string' && /^[\u0000-\u0020]*[=+\-@]/.test(text);
+        const safeText = isFormulaText ? `'${text}` : text;
+        return `"${safeText.replace(/"/g, '""')}"`;
+    }
+
     // Build date strings ourselves so they remain YYYY-MM-DD in every browser timezone.
     generateDays() {
         const year = Number(this.selectedYear);
@@ -207,9 +286,16 @@ export default class AttendanceMonthlyView extends LightningElement {
             getMonthlyHolidays({
                 month: Number(this.selectedMonth),
                 year: Number(this.selectedYear)
+            }),
+            getYearToDateLeaves({
+                month: Number(this.selectedMonth),
+                year: Number(this.selectedYear)
+            }),
+            getEmployeeLeaveAllocations({
+                leaveYear: Number(this.selectedYear)
             })
         ])
-            .then(([employees, attendanceRecords, holidayRecords]) => {
+            .then(([employees, attendanceRecords, holidayRecords, yearToDateLeaveRecords, leaveAllocationRecords]) => {
                 // A slower response for the previous month must not replace the current month.
                 if (requestId !== this.loadRequestId) {
                     return;
@@ -217,6 +303,8 @@ export default class AttendanceMonthlyView extends LightningElement {
                 this.employees = employees;
                 this.attendanceRecords = attendanceRecords;
                 this.holidayRecords = holidayRecords;
+                this.yearToDateLeaveRecords = yearToDateLeaveRecords;
+                this.leaveAllocationRecords = leaveAllocationRecords;
                 this.buildEmployeeRows();
             })
             .catch(error => {
@@ -243,12 +331,26 @@ export default class AttendanceMonthlyView extends LightningElement {
                 record
             ])
         );
+        const yearToDateLeaveCounts = new Map();
+        this.yearToDateLeaveRecords.forEach(record => {
+            const employeeId = record.Employee__c;
+            yearToDateLeaveCounts.set(
+                employeeId,
+                (yearToDateLeaveCounts.get(employeeId) || 0) + 1
+            );
+        });
+        const leaveAllocationsByEmployee = new Map();
+        this.leaveAllocationRecords.forEach(record => {
+            // The newest record wins if an employee has duplicate allocations for a year.
+            if (!leaveAllocationsByEmployee.has(record.Employee__c)) {
+                leaveAllocationsByEmployee.set(record.Employee__c, record);
+            }
+        });
         this.employeeRows = this.employees.map(employee => {
             const counts = {
                 wfhCount: 0,
                 wfoCount: 0,
-                absentCount: 0,
-                leaveCount: 0
+                absentCount: 0
             };
 
             const employeeDays = this.days.map(day => {
@@ -276,9 +378,6 @@ export default class AttendanceMonthlyView extends LightningElement {
                         case 'Absent':
                         case 'LOP': // Legacy LOP records are counted as Absent.
                             counts.absentCount += 1;
-                            break;
-                        case 'Leave':
-                            counts.leaveCount += 1;
                             break;
                         default:
                             break;
@@ -312,10 +411,23 @@ export default class AttendanceMonthlyView extends LightningElement {
                 };
             });
 
+            const leaveAllocation = leaveAllocationsByEmployee.get(employee.Id);
+            const yearToDateLeaveCount = yearToDateLeaveCounts.get(employee.Id) || 0;
+            const allocatedLeaveCount = leaveAllocation
+                ? Number(leaveAllocation.Total_Allocated_Leaves__c ?? 0)
+                : null;
+
             return {
                 employeeId: employee.Id,
                 employeeName: employee.Name,
                 days: employeeDays,
+                leaveCount: yearToDateLeaveCount,
+                allocatedLeaveCount: allocatedLeaveCount === null
+                    ? '—'
+                    : allocatedLeaveCount,
+                remainingLeaveCount: allocatedLeaveCount === null
+                    ? '—'
+                    : allocatedLeaveCount - yearToDateLeaveCount,
                 ...counts
             };
         });
@@ -351,6 +463,7 @@ export default class AttendanceMonthlyView extends LightningElement {
         const date = event.currentTarget.dataset.date;
         const status = event.detail.value;
         const previousRecords = this.attendanceRecords;
+        const previousYearToDateLeaveRecords = this.yearToDateLeaveRecords;
         const optimisticRecord = {
             ...(this.attendanceRecords.find(record =>
                 record.Employee__c === employeeId && record.Attendance_Date__c === date
@@ -362,6 +475,7 @@ export default class AttendanceMonthlyView extends LightningElement {
 
         this.isSaving = true;
         this.replaceAttendanceRecord(optimisticRecord);
+        this.replaceYearToDateLeaveRecord(optimisticRecord);
         this.buildEmployeeRows();
 
         saveAttendance({
@@ -372,11 +486,13 @@ export default class AttendanceMonthlyView extends LightningElement {
         })
             .then(savedRecord => {
                 this.replaceAttendanceRecord(savedRecord);
+                this.replaceYearToDateLeaveRecord(savedRecord);
                 this.buildEmployeeRows();
                 this.showToast('Saved', 'Attendance was saved.', 'success');
             })
             .catch(error => {
                 this.attendanceRecords = previousRecords;
+                this.yearToDateLeaveRecords = previousYearToDateLeaveRecords;
                 this.buildEmployeeRows();
                 this.showToast('Could not save attendance', this.getErrorMessage(error), 'error');
             })
@@ -391,6 +507,16 @@ export default class AttendanceMonthlyView extends LightningElement {
                 record.Attendance_Date__c === recordToSave.Attendance_Date__c)
         );
         this.attendanceRecords = [...remainingRecords, recordToSave];
+    }
+
+    replaceYearToDateLeaveRecord(recordToSave) {
+        const remainingRecords = this.yearToDateLeaveRecords.filter(record =>
+            !(record.Employee__c === recordToSave.Employee__c &&
+                record.Attendance_Date__c === recordToSave.Attendance_Date__c)
+        );
+        this.yearToDateLeaveRecords = recordToSave.Status__c === 'Leave'
+            ? [...remainingRecords, recordToSave]
+            : remainingRecords;
     }
 
     getErrorMessage(error) {
