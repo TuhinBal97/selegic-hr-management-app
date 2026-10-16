@@ -24,26 +24,43 @@
                                 <circle
                                     key={metric.key}
                                     class={metric.segmentClass}
+                                    data-key={metric.key}
                                     cx="60"
                                     cy="60"
                                     r="45"
                                     stroke-dasharray={metric.dashArray}
-                                    stroke-dashoffset={metric.dashOffset}>
+                                    stroke-dashoffset={metric.dashOffset}
+                                    onmouseenter={handleMetricHover}
+                                    onmouseleave={handleMetricLeave}>
                                 </circle>
                             </template>
                         </g>
                     </svg>
                     <div class="donut-center" aria-hidden="true">
-                        <span>Monthly<br />status mix</span>
+                        <template lwc:if={activeMetric}>
+                            <span class="donut-center-label">{activeMetric.label}</span>
+                            <strong>{activeMetric.percentageLabel}</strong>
+                        </template>
+                        <template lwc:else>
+                            <span>Monthly<br />status mix</span>
+                        </template>
                     </div>
                 </div>
 
                 <ul class="chart-legend" aria-label="Attendance status percentages">
                     <template for:each={metrics} for:item="metric">
-                        <li key={metric.key} class="legend-row">
+                        <li
+                            key={metric.key}
+                            class={metric.legendRowClass}>
                             <span class={metric.swatchClass} aria-hidden="true"></span>
-                            <span class="legend-label">{metric.label}</span>
-                            <strong class="legend-percentage">{metric.percentageLabel}</strong>
+                            <span
+                                class="legend-values"
+                                data-key={metric.key}
+                                onmouseenter={handleMetricHover}
+                                onmouseleave={handleMetricLeave}>
+                                <span class="legend-label">{metric.label}</span>
+                                <strong class="legend-percentage">{metric.percentageLabel}</strong>
+                            </span>
                         </li>
                     </template>
                 </ul>

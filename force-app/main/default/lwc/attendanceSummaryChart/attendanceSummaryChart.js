@@ -13,6 +13,8 @@ export default class AttendanceSummaryChart extends LightningElement {
     @api periodLabel = '';
     @api loading = false;
 
+    activeMetricKey;
+
     get metrics() {
         const values = SUMMARY_TYPES.map(type => ({
             ...type,
@@ -27,7 +29,9 @@ export default class AttendanceSummaryChart extends LightningElement {
             const metric = {
                 ...item,
                 percentageLabel: `${percentage.toFixed(1)}%`,
-                segmentClass: `donut-segment ${item.statusClass}`,
+                isActive: this.activeMetricKey === item.key,
+                segmentClass: `donut-segment ${item.statusClass}${this.activeMetricKey === item.key ? ' is-active' : ''}`,
+                legendRowClass: `legend-row${this.activeMetricKey === item.key ? ' legend-row-active' : ''}`,
                 swatchClass: `legend-swatch ${item.statusClass}`,
                 dashArray: `${segmentLength.toFixed(3)} ${DONUT_CIRCUMFERENCE.toFixed(3)}`,
                 dashOffset: (-cumulativeLength).toFixed(3),
@@ -36,6 +40,20 @@ export default class AttendanceSummaryChart extends LightningElement {
             cumulativeLength += segmentLength;
             return metric;
         });
+    }
+
+    get activeMetric() {
+        return this.metrics.find(item => item.isActive);
+    }
+
+    handleMetricHover(event) {
+        this.activeMetricKey = event.currentTarget.dataset.key;
+    }
+
+    handleMetricLeave(event) {
+        if (this.activeMetricKey === event.currentTarget.dataset.key) {
+            this.activeMetricKey = undefined;
+        }
     }
 
     get hasRecords() {

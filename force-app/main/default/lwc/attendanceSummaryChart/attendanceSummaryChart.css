@@ -69,7 +69,16 @@
 }
 
 .donut-segment {
+    cursor: pointer;
     stroke-linecap: butt;
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 180ms ease, filter 180ms ease;
+}
+
+.donut-segment.is-active {
+    filter: drop-shadow(0 2px 3px rgba(24, 24, 24, 0.24));
+    transform: scale(1.06);
 }
 
 .donut-segment.status-wfh {
@@ -128,6 +137,18 @@
     font-size: 0.75rem;
 }
 
+.donut-center .donut-center-label {
+    max-width: 8rem;
+    margin: 0 0 0.15rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.donut-center strong {
+    font-size: 1.5rem;
+}
+
 .chart-legend {
     display: grid;
     gap: 0.875rem;
@@ -138,11 +159,36 @@
 
 .legend-row {
     display: grid;
-    grid-template-columns: auto max-content max-content;
+    grid-template-columns: auto max-content;
     align-items: center;
     justify-content: start;
     gap: 0.75rem;
     min-width: 0;
+}
+
+.legend-values {
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: max-content max-content;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+.legend-row-active .legend-values {
+    margin: -0.4rem -0.5rem;
+    padding: 0.4rem 0.5rem;
+    border-radius: 0.5rem;
+    background: #f3f6fa;
+}
+
+.legend-row-active .legend-label {
+    color: var(--attendance-text, #181818);
+    font-weight: 700;
+}
+
+.legend-row-active .legend-percentage {
+    color: var(--attendance-accent, #175cd3);
 }
 
 .legend-swatch {
