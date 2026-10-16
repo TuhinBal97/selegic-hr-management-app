@@ -80,7 +80,7 @@
                                             <th scope="col" class="summary-column">WFH</th>
                                             <th scope="col" class="summary-column">WFO</th>
                                             <th scope="col" class="summary-column">Absent</th>
-                                            <th scope="col" class="summary-column" title="Leave taken from January through the selected month">Leave</th>
+                                            <th scope="col" class="summary-column leave-summary-column" title="Leave taken from January through the selected month">Leave (YTD)</th>
                                             <th scope="col" class="summary-column leave-summary-column" title="Total allocated leaves from the employee's leave allocation">Allocated</th>
                                             <th scope="col" class="summary-column remaining-summary-column" title="Allocation less leave taken from January through the selected month">Remaining</th>
                                         </tr>
@@ -118,7 +118,7 @@
                         <th scope="col" class="summary-column">WFH</th>
                         <th scope="col" class="summary-column">WFO</th>
                         <th scope="col" class="summary-column">Absent</th>
-                        <th scope="col" class="summary-column" title="Leave taken from January through the selected month">Leave</th>
+                        <th scope="col" class="summary-column leave-summary-column" title="Leave taken from January through the selected month">Leave (YTD)</th>
                         <th scope="col" class="summary-column leave-summary-column" title="Total allocated leaves from the employee's leave allocation">Allocated</th>
                         <th scope="col" class="summary-column remaining-summary-column" title="Allocation less leave taken from January through the selected month">Remaining</th>
                     </tr>
@@ -156,7 +156,7 @@
                             <td class="summary-cell">{row.wfhCount}</td>
                             <td class="summary-cell">{row.wfoCount}</td>
                             <td class="summary-cell">{row.absentCount}</td>
-                            <td class="summary-cell">{row.leaveCount}</td>
+                            <td class="summary-cell leave-summary-cell">{row.leaveCount}</td>
                             <td class="summary-cell leave-summary-cell">{row.allocatedLeaveCount}</td>
                             <td class="summary-cell leave-summary-cell remaining-summary-column">{row.remainingLeaveCount}</td>
                         </tr>
@@ -165,10 +165,17 @@
             </table>
         </div>
 
-        <c-attendance-summary-chart
-            summary={attendanceSummary}
-            period-label={summaryPeriod}
-            loading={isLoading}>
-        </c-attendance-summary-chart>
+        <div class="attendance-summary-grid">
+            <c-attendance-summary-chart
+                summary={attendanceSummary}
+                period-label={summaryPeriod}
+                loading={isLoading}>
+            </c-attendance-summary-chart>
+            <c-employee-attendance-breakdown
+                employee-rows={employeeRows}
+                period-label={summaryPeriod}
+                loading={isLoading}>
+            </c-employee-attendance-breakdown>
+        </div>
     </div>
 </template>

@@ -1,0 +1,55 @@
+<template>
+    <section class="employee-summary-card" aria-labelledby="employee-summary-heading">
+        <header class="employee-summary-header">
+            <div>
+                <h2 id="employee-summary-heading">Employee attendance</h2>
+                <p class="period-label">{periodLabel}</p>
+            </div>
+            <template lwc:if={selectedEmployee}>
+                <lightning-combobox
+                    class="employee-picker"
+                    name="employee"
+                    label="Employee"
+                    value={selectedEmployeeId}
+                    options={employeeOptions}
+                    onchange={handleEmployeeChange}
+                    disabled={isEmployeePickerDisabled}>
+                </lightning-combobox>
+            </template>
+        </header>
+
+        <template lwc:if={loading}>
+            <p class="summary-message">Loading employee attendance…</p>
+        </template>
+        <template lwc:elseif={selectedEmployee}>
+            <div class="employee-summary-content">
+                <div class="employee-chart-content">
+                    <p class="chart-caption">{selectedEmployee.employeeName} · {calendarDaysLabel}</p>
+                    <ul class="employee-status-list" aria-label="Selected employee monthly status counts and percentages">
+                        <template for:each={statuses} for:item="status">
+                            <li key={status.key} class="employee-status-row">
+                                <span class="employee-status-name">
+                                    <span class={status.swatchClass} aria-hidden="true"></span>
+                                    <span class="employee-status-label">{status.label}</span>
+                                </span>
+                                <div
+                                    class="status-bar-track"
+                                    role="img"
+                                    aria-label={status.barAccessibleLabel}
+                                    title={status.barAccessibleLabel}>
+                                    <span class={status.barClass} style={status.widthStyle}></span>
+                                </div>
+                                <strong class="employee-status-value">{status.valueLabel}</strong>
+                            </li>
+                        </template>
+                    </ul>
+
+                    <p class="remainder-note">{remainderNote}</p>
+                </div>
+            </div>
+        </template>
+        <template lwc:else>
+            <p class="summary-message">No active employees are available for this month.</p>
+        </template>
+    </section>
+</template>

@@ -1,0 +1,178 @@
+:host {
+    display: flex;
+    min-width: 0;
+    margin: 0.75rem 0;
+    color: var(--attendance-text, #181818);
+}
+
+.employee-summary-card {
+    flex: 1;
+    padding: 1rem;
+    border: 1px solid var(--attendance-border, #d8dde6);
+    border-radius: 0.75rem;
+    background: var(--attendance-surface, #ffffff);
+    box-shadow: 0 1px 3px rgba(24, 24, 24, 0.08);
+}
+
+.employee-summary-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.875rem;
+}
+
+.employee-summary-header h2 {
+    margin: 0;
+    color: var(--attendance-text, #181818);
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.period-label,
+.summary-message {
+    color: var(--attendance-muted-text, #5c6470);
+}
+
+.period-label {
+    margin: 0.125rem 0 0;
+    font-size: 0.8125rem;
+}
+
+.employee-summary-content {
+    display: block;
+}
+
+.employee-chart-content {
+    display: grid;
+    align-content: start;
+    gap: 1rem;
+    min-width: 0;
+    max-width: 76%;
+}
+
+.chart-caption {
+    margin: 0;
+    color: var(--attendance-muted-text, #5c6470);
+    font-size: 0.8125rem;
+    font-weight: 600;
+}
+
+.status-bar {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    transition: width 180ms ease;
+}
+
+.status-bar.status-wfh,
+.status-swatch.status-wfh {
+    background-color: var(--attendance-status-wfh, #bde0fe);
+}
+
+.status-bar.status-wfo,
+.status-swatch.status-wfo {
+    background-color: var(--attendance-status-wfo, #b7e4c7);
+}
+
+.status-bar.status-leave,
+.status-swatch.status-leave {
+    background-color: var(--attendance-status-leave, #fff1c7);
+}
+
+.status-bar.status-absent,
+.status-swatch.status-absent {
+    background-color: var(--attendance-status-absent, #f8d7da);
+}
+
+.employee-status-list {
+    display: grid;
+    gap: 0.875rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.employee-status-row {
+    display: grid;
+    grid-template-columns: minmax(7.5rem, 9rem) minmax(2rem, 1fr) max-content;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+.employee-status-name {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.status-swatch {
+    display: inline-block;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+}
+
+.employee-status-label {
+    overflow: hidden;
+    color: var(--attendance-muted-text, #344054);
+    font-size: 0.8125rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.status-bar-track {
+    height: 1rem;
+    overflow: hidden;
+    border-radius: 0.15rem;
+    background: var(--attendance-border, #e5e7eb);
+}
+
+.employee-status-value {
+    color: var(--attendance-text, #181818);
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.employee-picker {
+    flex: 0 1 14rem;
+    width: 14rem;
+    max-width: 45%;
+}
+
+.remainder-note,
+.summary-message {
+    margin: 0;
+    font-size: 0.75rem;
+    line-height: 1.4;
+}
+
+@media (max-width: 40rem) {
+    .employee-summary-header {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .employee-summary-content {
+        display: block;
+    }
+
+    .employee-chart-content {
+        max-width: 100%;
+    }
+
+    .employee-picker {
+        flex-basis: 100%;
+        width: 100%;
+        max-width: none;
+    }
+
+    .employee-status-row {
+        grid-template-columns: minmax(6.25rem, 8rem) minmax(2rem, 1fr) max-content;
+        gap: 0.5rem;
+    }
+}
