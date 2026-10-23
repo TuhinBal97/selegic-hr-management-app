@@ -139,6 +139,29 @@
     overflow-y: hidden;
 }
 
+.attendance-horizontal-scrollbar {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    z-index: 30;
+    box-sizing: border-box;
+    height: 1.25rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border: 1px solid var(--attendance-border, #c9c9c9);
+    border-radius: 0.25rem;
+    background: var(--attendance-surface, #ffffff);
+    box-shadow: 0 -1px 4px rgba(24, 24, 24, 0.12);
+}
+
+.attendance-horizontal-scrollbar.is-visible {
+    display: block;
+}
+
+.attendance-horizontal-scrollbar-content {
+    height: 1px;
+}
+
 .attendance-accessible-header {
     position: absolute;
 }

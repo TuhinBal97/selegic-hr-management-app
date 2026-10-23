@@ -84,6 +84,7 @@ export default class AttendanceMonthlyView extends LightningElement {
     renderedCallback() {
         this.attachStickyScrollListeners();
         this.updateStickyArea();
+        this.updateHorizontalScrollbar();
     }
 
     disconnectedCallback() {
@@ -131,6 +132,7 @@ export default class AttendanceMonthlyView extends LightningElement {
         this.stickyUpdateFrame = requestAnimationFrame(() => {
             this.stickyUpdateFrame = null;
             this.updateStickyArea();
+            this.updateHorizontalScrollbar();
         });
     };
 
@@ -167,7 +169,47 @@ export default class AttendanceMonthlyView extends LightningElement {
         if (stickyHeaderScroller) {
             stickyHeaderScroller.scrollLeft = event.target.scrollLeft;
         }
+        const horizontalScrollbar = this.template.querySelector('.attendance-horizontal-scrollbar');
+        if (horizontalScrollbar && horizontalScrollbar.scrollLeft !== event.target.scrollLeft) {
+            horizontalScrollbar.scrollLeft = event.target.scrollLeft;
+        }
         this.updateStickyArea();
+        this.updateHorizontalScrollbar();
+    }
+
+    handleHorizontalScrollbarScroll(event) {
+        const gridScroller = this.template.querySelector('.attendance-grid-scroll');
+        if (gridScroller && gridScroller.scrollLeft !== event.target.scrollLeft) {
+            gridScroller.scrollLeft = event.target.scrollLeft;
+        }
+    }
+
+    updateHorizontalScrollbar() {
+        const gridScroller = this.template.querySelector('.attendance-grid-scroll');
+        const horizontalScrollbar = this.template.querySelector('.attendance-horizontal-scrollbar');
+        const scrollbarContent = this.template.querySelector('.attendance-horizontal-scrollbar-content');
+
+        if (!gridScroller || !horizontalScrollbar || !scrollbarContent) {
+            return;
+        }
+
+        const gridBounds = gridScroller.getBoundingClientRect();
+        const hasHorizontalOverflow = gridScroller.scrollWidth > gridScroller.clientWidth + 1;
+        const gridIsVisible = gridBounds.top < window.innerHeight && gridBounds.bottom > 0;
+        const nativeScrollbarIsVisible = gridBounds.bottom <= window.innerHeight && gridBounds.bottom >= 0;
+        const showFixedScrollbar = hasHorizontalOverflow && gridIsVisible && !nativeScrollbarIsVisible;
+
+        horizontalScrollbar.classList.toggle('is-visible', showFixedScrollbar);
+        if (!showFixedScrollbar) {
+            return;
+        }
+
+        horizontalScrollbar.style.left = `${gridBounds.left}px`;
+        horizontalScrollbar.style.width = `${gridBounds.width}px`;
+        scrollbarContent.style.width = `${gridScroller.scrollWidth}px`;
+        if (horizontalScrollbar.scrollLeft !== gridScroller.scrollLeft) {
+            horizontalScrollbar.scrollLeft = gridScroller.scrollLeft;
+        }
     }
 
     generateYearOptions() {
