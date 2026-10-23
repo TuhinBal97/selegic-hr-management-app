@@ -39,56 +39,69 @@
                     </div>
                 </div>
 
-                <div class="attendance-grid-section">
-                    <div class="attendance-grid-content">
-                        <div class="status-legend">
-                            <div class="legend-item">
-                                <span class="legend-box status-wfh"></span><span>WFH</span>
-                            </div>
-                            <div class="legend-item">
-                                <span class="legend-box status-wfo"></span><span>WFO</span>
-                            </div>
-                            <div class="legend-item">
-                                <span class="legend-box status-absent"></span><span>Absent</span>
-                            </div>
-                            <div class="legend-item">
-                                <span class="legend-box status-none"></span><span>Pending</span>
-                            </div>
-                            <div class="legend-item">
-                                <span class="legend-box status-leave"></span><span>Leave</span>
-                            </div>
-                            <div class="legend-item">
-                                <span class="legend-box status-wo"></span><span>Weekly Off</span>
-                            </div>
-                            <div class="legend-item">
-                                <span class="legend-box status-holiday"></span><span>Holiday</span>
-                            </div>
-                        </div>
+            </div>
+        </div>
 
-                        <div class="attendance-sticky-header" aria-hidden="true">
-                            <div class="attendance-sticky-header-scroll">
-                                <table class="slds-table slds-table_bordered slds-table_cell-buffer attendance-table">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col" class="employee-column">Employee</th>
-                                            <template for:each={days} for:item="day">
-                                                <th scope="col" key={day.date} class="day-column">
-                                                    <div>{day.dayNumber}</div>
-                                                    <div>{day.dayName}</div>
-                                                </th>
-                                            </template>
-                                            <th scope="col" class="summary-column">WFH</th>
-                                            <th scope="col" class="summary-column">WFO</th>
-                                            <th scope="col" class="summary-column">Absent</th>
-                                            <th scope="col" class="summary-column leave-summary-column" title="Leave taken from January through the selected month">Leave (YTD)</th>
-                                            <th scope="col" class="summary-column leave-summary-column" title="Total allocated leaves from the employee's leave allocation">Allocated</th>
-                                            <th scope="col" class="summary-column remaining-summary-column" title="Allocation less leave taken from January through the selected month">Remaining</th>
-                                        </tr>
-                                    </thead>
-                                </table>
-                            </div>
-                        </div>
+        <div class="attendance-summary-grid">
+            <c-attendance-summary-chart
+                summary={attendanceSummary}
+                period-label={summaryPeriod}
+                loading={isLoading}>
+            </c-attendance-summary-chart>
+            <c-employee-attendance-breakdown
+                employee-rows={employeeRows}
+                period-label={summaryPeriod}
+                loading={isLoading}>
+            </c-employee-attendance-breakdown>
+        </div>
 
+        <div class="attendance-grid-section">
+            <div class="attendance-grid-content">
+                <div class="status-legend">
+                    <div class="legend-item">
+                        <span class="legend-box status-wfh"></span><span>WFH</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-box status-wfo"></span><span>WFO</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-box status-absent"></span><span>Absent</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-box status-none"></span><span>Pending</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-box status-leave"></span><span>Leave</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-box status-wo"></span><span>Weekly Off</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-box status-holiday"></span><span>Holiday</span>
+                    </div>
+                </div>
+
+                <div class="attendance-sticky-header" aria-hidden="true">
+                    <div class="attendance-sticky-header-scroll">
+                        <table class="slds-table slds-table_bordered slds-table_cell-buffer attendance-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="employee-column">Employee</th>
+                                    <template for:each={days} for:item="day">
+                                        <th scope="col" key={day.date} class="day-column">
+                                            <div>{day.dayNumber}</div>
+                                            <div>{day.dayName}</div>
+                                        </th>
+                                    </template>
+                                    <th scope="col" class="summary-column">WFH</th>
+                                    <th scope="col" class="summary-column">WFO</th>
+                                    <th scope="col" class="summary-column">Absent</th>
+                                    <th scope="col" class="summary-column leave-summary-column" title="Leave taken from January through the selected month">Leave (YTD)</th>
+                                    <th scope="col" class="summary-column leave-summary-column" title="Total allocated leaves from the employee's leave allocation">Allocated</th>
+                                    <th scope="col" class="summary-column remaining-summary-column" title="Allocation less leave taken from January through the selected month">Remaining</th>
+                                </tr>
+                            </thead>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -165,17 +178,5 @@
             </table>
         </div>
 
-        <div class="attendance-summary-grid">
-            <c-attendance-summary-chart
-                summary={attendanceSummary}
-                period-label={summaryPeriod}
-                loading={isLoading}>
-            </c-attendance-summary-chart>
-            <c-employee-attendance-breakdown
-                employee-rows={employeeRows}
-                period-label={summaryPeriod}
-                loading={isLoading}>
-            </c-employee-attendance-breakdown>
-        </div>
     </div>
 </template>

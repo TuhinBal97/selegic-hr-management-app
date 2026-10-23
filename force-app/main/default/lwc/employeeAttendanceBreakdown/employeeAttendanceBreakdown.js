@@ -48,10 +48,16 @@ export default class EmployeeAttendanceBreakdown extends LightningElement {
     get statuses() {
         const employee = this.selectedEmployee;
         const totalDays = this.daysInMonth;
+        const statusCounts = ATTENDANCE_STATUSES.map(status => ({
+            ...status,
+            count: Number(employee?.[status.key]) || 0
+        }));
+        const highestCount = Math.max(0, ...statusCounts.map(status => status.count));
 
-        return ATTENDANCE_STATUSES.map(status => {
-            const count = Number(employee?.[status.key]) || 0;
+        return statusCounts.map(status => {
+            const { count } = status;
             const percentage = totalDays ? (count / totalDays) * 100 : 0;
+            const fillPercentage = highestCount ? (count / highestCount) * 100 : 0;
 
             return {
                 ...status,
@@ -59,7 +65,7 @@ export default class EmployeeAttendanceBreakdown extends LightningElement {
                 countLabel: `${count} ${count === 1 ? 'day' : 'days'}`,
                 percentageLabel: `${percentage.toFixed(1)}%`,
                 valueLabel: `${count} ${count === 1 ? 'day' : 'days'} · ${percentage.toFixed(1)}%`,
-                widthStyle: `width: ${percentage.toFixed(3)}%`,
+                widthStyle: `width: ${fillPercentage.toFixed(3)}%`,
                 swatchClass: `status-swatch ${status.statusClass}`,
                 barClass: `status-bar ${status.statusClass}`,
                 barAccessibleLabel: `${status.label}: ${count} ${count === 1 ? 'day' : 'days'}, ${percentage.toFixed(1)}% of the month`
@@ -79,7 +85,7 @@ export default class EmployeeAttendanceBreakdown extends LightningElement {
     }
 
     get remainderNote() {
-        return `Percentages use all ${this.daysInMonth} calendar days. Weekly offs, holidays, and pending days are not included in these status bars.`;
+        return `Bar fills compare each status with the highest count. Percentages use all ${this.daysInMonth} calendar days; weekly offs, holidays, and pending days are not included.`;
     }
 
     get isEmployeePickerDisabled() {
