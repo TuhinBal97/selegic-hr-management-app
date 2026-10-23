@@ -205,23 +205,15 @@ export default class AttendanceMonthlyView extends LightningElement {
 
         const headers = [
             'Employee',
-            ...this.days.map(day => `${String(day.dayNumber).padStart(2, '0')} ${day.dayName}`),
-            'WFH',
-            'WFO',
-            'Absent',
-            'Leave (YTD)',
-            'Total Allocated',
-            'Remaining'
+            'Work from home',
+            'Work from office',
+            'Leave this month'
         ];
         const rows = this.employeeRows.map(row => [
             row.employeeName,
-            ...row.days.map(day => day.statusLabel === 'Select status' ? 'Pending' : day.statusLabel),
             row.wfhCount,
             row.wfoCount,
-            row.absentCount,
-            row.leaveCount,
-            row.allocatedLeaveCount,
-            row.remainingLeaveCount
+            row.monthlyLeaveCount
         ]);
         const csvContent = [headers, ...rows]
             .map(row => row.map(value => this.escapeCsvValue(value)).join(','))
@@ -241,12 +233,12 @@ export default class AttendanceMonthlyView extends LightningElement {
             const csvBlob = new Blob(['\uFEFF', csvContent], { type: 'text/plain' });
             const downloadUrl = URL.createObjectURL(csvBlob);
             downloadLink.href = downloadUrl;
-            downloadLink.download = `attendance-${this.selectedYear}-${this.selectedMonth.padStart(2, '0')}.csv`;
+            downloadLink.download = `attendance-summary-${this.selectedYear}-${this.selectedMonth.padStart(2, '0')}.csv`;
             downloadLink.click();
             window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
             this.showToast(
                 'Export ready',
-                'The selected month’s attendance was downloaded as a CSV file for Excel.',
+                'The selected month’s employee counts were downloaded as a CSV file for Excel.',
                 'success'
             );
         } catch (error) {
