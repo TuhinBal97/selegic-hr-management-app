@@ -1,0 +1,17 @@
+<template>
+    <div class="hub slds-p-around_medium">
+        <div class="hub-heading slds-m-bottom_medium">
+            <p class="eyebrow">SELEGIC HR MANAGEMENT</p>
+            <h1 class="slds-text-heading_large">Payroll &amp; Expenses</h1>
+            <p class="description">Prepare the monthly office expense request and individual employee payslips.</p>
+        </div>
+        <lightning-tabset variant="scoped">
+            <lightning-tab label="Monthly Office Invoice" value="invoice">
+                <c-monthly-office-invoice></c-monthly-office-invoice>
+            </lightning-tab>
+            <lightning-tab label="Employee Payslip" value="payslip">
+                <c-employee-pay-slip></c-employee-pay-slip>
+            </lightning-tab>
+        </lightning-tabset>
+    </div>
+</template>

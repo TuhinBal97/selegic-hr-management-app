@@ -1,0 +1,103 @@
+<apex:page controller="PayrollDocumentPdfController" renderAs="pdf" showHeader="false" sidebar="false" standardStylesheets="false" applyHtmlTag="false" applyBodyTag="false">
+    <html>
+        <head>
+            <style type="text/css">
+                @page { size: A4; margin: 16mm 14mm; }
+                body { font-family: Arial, Helvetica, sans-serif; color: #181818; font-size: 10pt; }
+                table { width: 100%; border-collapse: collapse; }
+                .brand { font-size: 20pt; font-weight: bold; }
+                .green { color: #4caf5a; }
+                .muted { color: #686868; }
+                .invoice-head td { vertical-align: bottom; padding: 8px; }
+                .invoice-title { font-size: 23pt; text-align: right; }
+                .invoice-box { border: 1px solid #a5a5a5; }
+                .invoice-meta td { padding: 4px 8px; }
+                .invoice-meta .label { width: 22%; color: #444; }
+                .invoice-meta .value { font-weight: bold; }
+                .invoice-parties td { border: 1px solid #a5a5a5; padding: 6px 8px; vertical-align: top; }
+                .section-head { background: #f1f2f4; font-weight: bold; }
+                .invoice-lines th, .invoice-lines td { border: 1px solid #a5a5a5; padding: 6px 7px; }
+                .invoice-lines th { background: #f1f2f4; text-align: left; }
+                .right { text-align: right !important; }
+                .center { text-align: center !important; }
+                .invoice-summary td { padding: 5px 8px; }
+                .invoice-total { font-size: 12pt; font-weight: bold; }
+                .invoice-words { width: 58%; vertical-align: top; padding: 10px 8px; }
+                .invoice-totals { width: 42%; vertical-align: top; border-left: 1px solid #a5a5a5; }
+                .notes { white-space: pre-line; margin-top: 12px; }
+                .payslip-top td { vertical-align: middle; padding: 4px; }
+                .payslip-logo { text-align: left; padding-right: 12px !important; }
+                .payslip-company { font-size: 16pt; font-weight: bold; }
+                .payslip-month { text-align: right; }
+                .rule { border-top: 1px solid #c5cbd3; margin: 10px 0 12px; }
+                .summary td, .employee-details td { padding: 4px; }
+                .net-card { border: 1px solid #c5cbd3; }
+                .net-value { background: #edfaf0; font-size: 20pt; padding: 10px; }
+                .net-label { background: #edfaf0; color: #64846b; padding: 0 10px 8px; }
+                .pay-table { border: 1px solid #555; margin-top: 10px; }
+                .pay-table th, .pay-table td { border: 1px solid #a5a5a5; padding: 7px 6px; }
+                .pay-table th { text-align: left; }
+                .pay-table .amount { text-align: right; white-space: nowrap; font-weight: bold; }
+                .totals-row { background: #f4f5f7; font-weight: bold; }
+                .payable { border: 1px solid #555; margin-top: 12px; }
+                .payable td { border: 1px solid #a5a5a5; padding: 10px; }
+                .payable-amount { background: #edfaf0; text-align: right; font-size: 13pt; font-weight: bold; }
+                .amount-words { text-align: right; margin-top: 14px; }
+                .amount-words strong { color: #222; }
+                .footer { border-top: 1px solid #c5cbd3; margin-top: 14px; padding-top: 10px; color: #777; text-align: center; font-size: 8pt; }
+            </style>
+        </head>
+        <body>
+            <apex:outputPanel layout="block" rendered="{!isInvoice}">
+                <table class="invoice-box">
+                    <tr class="invoice-head">
+                        <td colspan="2"><div class="brand">SELEGIC INDIA PRIVATE LIMITED</div><div class="muted">Monthly office expense request</div></td>
+                        <td colspan="2" class="invoice-title">MONTHLY OFFICE INVOICE</td>
+                    </tr>
+                    <tr><td colspan="4" style="padding:0"><table class="invoice-meta">
+                        <tr><td class="label">Invoice #</td><td class="value"><apex:outputText value="{!invoice.invoiceNumber}" escape="true"/></td><td class="label">Invoice Date</td><td class="value"><apex:outputText value="{!invoice.invoiceDate}" escape="true"/></td></tr>
+                        <tr><td class="label">Expense Period</td><td class="value"><apex:outputText value="{!invoice.period}" escape="true"/></td><td class="label">Prepared By</td><td class="value"><apex:outputText value="{!invoice.preparedBy}" escape="true"/></td></tr>
+                    </table></td></tr>
+                    <tr class="invoice-parties section-head"><td width="50%">Prepared For</td><td width="50%">Office</td></tr>
+                    <tr class="invoice-parties"><td><apex:outputText value="{!invoice.recipient}" escape="true"/></td><td>Selegic India Private Limited<br/>Webel IT Park, Newtown, Kolkata 700160, India</td></tr>
+                    <tr><td colspan="4" style="padding:0"><table class="invoice-lines">
+                        <tr><th width="8%" class="center">#</th><th>Description</th><th width="30%" class="right">Amount (INR)</th></tr>
+                        <apex:repeat value="{!invoice.lines}" var="line"><tr><td class="center"><apex:outputText value="{!line.lineNumber}"/></td><td><apex:outputText value="{!line.description}" escape="true"/></td><td class="right">₹<apex:outputText value="{!line.amountFormatted}" escape="true"/></td></tr></apex:repeat>
+                    </table></td></tr>
+                    <tr><td class="invoice-words">Notes<br/><strong><apex:outputText value="{!invoice.notes}" escape="true"/></strong></td><td colspan="3" class="invoice-totals"><table class="invoice-summary"><tr class="invoice-total"><td>Total Office Expenses</td><td class="right">₹<apex:outputText value="{!invoice.totalFormatted}" escape="true"/></td></tr></table></td></tr>
+                </table>
+            </apex:outputPanel>
+
+            <apex:outputPanel layout="block" rendered="{!isPayslip}">
+                <table class="payslip-top">
+                    <tr><td class="payslip-logo" width="18%"><apex:image value="{!$Resource.SelegicLogo}" width="100" alt="Selegic"/></td><td width="52%"><div class="payslip-company">Selegic India Private Limited</div><div class="muted">Webel IT Park, PH-2, DH Block Action Area 1D, Newtown Kolkata<br/>700160 India</div></td><td class="payslip-month" width="30%"><span class="muted">Payslip For the Month</span><br/><strong><apex:outputText value="{!payslip.payPeriod}" escape="true"/></strong></td></tr>
+                </table>
+                <div class="rule"></div>
+                <table class="summary"><tr><td width="62%" valign="top"><table class="employee-summary">
+                    <tr><td colspan="3"><strong class="muted">EMPLOYEE SUMMARY</strong></td></tr>
+                    <tr><td class="muted" width="28%">Employee Name</td><td>:</td><td><apex:outputText value="{!payslip.employeeName}" escape="true"/></td></tr>
+                    <tr><td class="muted">Employee ID</td><td>:</td><td><apex:outputText value="{!payslip.employeeId}" escape="true"/></td></tr>
+                    <tr><td class="muted">Pay Period</td><td>:</td><td><apex:outputText value="{!payslip.payPeriod}" escape="true"/></td></tr>
+                    <tr><td class="muted">Pay Date</td><td>:</td><td><apex:outputText value="{!payslip.payDate}" escape="true"/></td></tr>
+                </table></td><td width="38%"><table class="net-card"><tr><td class="net-value">₹<apex:outputText value="{!payslip.netPayFormatted}" escape="true"/></td></tr><tr><td class="net-label">Total Net Pay</td></tr><tr><td class="muted">Paid Days <strong style="float:right"><apex:outputText value="{!payslip.paidDays}" escape="true"/></strong></td></tr><tr><td class="muted">LOP Days <strong style="float:right"><apex:outputText value="{!payslip.lopDays}" escape="true"/></strong></td></tr></table></td></tr></table>
+                <div class="rule"></div>
+                <table class="employee-details"><tr><td width="50%"><table>
+                    <tr><td class="muted" width="34%">Designation</td><td>:</td><td><apex:outputText value="{!payslip.designation}" escape="true"/></td></tr>
+                    <tr><td class="muted">PF Number</td><td>:</td><td><apex:outputText value="{!payslip.pfNumber}" escape="true"/></td></tr>
+                    <tr><td class="muted">PAN</td><td>:</td><td><apex:outputText value="{!payslip.pan}" escape="true"/></td></tr>
+                </table></td><td width="50%"><table>
+                    <tr><td class="muted" width="34%">Bank A/C Number</td><td>:</td><td><apex:outputText value="{!payslip.bankAccountNumber}" escape="true"/></td></tr>
+                    <tr><td class="muted">UAN Number</td><td>:</td><td><apex:outputText value="{!payslip.uanNumber}" escape="true"/></td></tr>
+                    <tr><td class="muted">D.O.J</td><td>:</td><td><apex:outputText value="{!payslip.dateOfJoining}" escape="true"/></td></tr>
+                </table></td></tr></table>
+                <table class="pay-table"><tr><th>EARNINGS</th><th class="amount">AMOUNT</th><th>DEDUCTIONS</th><th class="amount">AMOUNT</th></tr>
+                    <apex:repeat value="{!payRows}" var="row"><tr><td><apex:outputText value="{!row.earning.description}" escape="true" rendered="{!row.hasEarning}"/></td><td class="amount"><apex:outputText value="₹" rendered="{!row.hasEarning}"/><apex:outputText value="{!row.earning.amountFormatted}" escape="true" rendered="{!row.hasEarning}"/></td><td><apex:outputText value="{!row.deduction.description}" escape="true" rendered="{!row.hasDeduction}"/></td><td class="amount"><apex:outputText value="₹" rendered="{!row.hasDeduction}"/><apex:outputText value="{!row.deduction.amountFormatted}" escape="true" rendered="{!row.hasDeduction}"/></td></tr></apex:repeat>
+                    <tr class="totals-row"><td>Gross Earnings</td><td class="amount">₹<apex:outputText value="{!payslip.grossFormatted}" escape="true"/></td><td>Total Deductions</td><td class="amount">₹<apex:outputText value="{!payslip.deductionsFormatted}" escape="true"/></td></tr>
+                </table>
+                <table class="payable"><tr><td><strong>TOTAL NET PAYABLE</strong><br/><span class="muted">Gross Earnings - Total Deductions</span></td><td class="payable-amount">₹<apex:outputText value="{!payslip.netPayFormatted}" escape="true"/></td></tr></table>
+                <div class="amount-words"><span class="muted">Amount in words:</span> <strong><apex:outputText value="{!payslip.amountInWords}" escape="true"/></strong></div>
+                <div class="footer">This is a system-generated document.</div>
+            </apex:outputPanel>
+        </body>
+    </html>
+</apex:page>

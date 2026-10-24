@@ -1,0 +1,97 @@
+<template>
+    <lightning-card title="Employee Payslip" icon-name="standard:employee">
+        <div class="slds-p-horizontal_medium slds-p-bottom_medium">
+            <p class="intro slds-m-bottom_medium">Enter employee details and pay items. Gross pay, deductions, and net pay are calculated automatically.</p>
+
+            <div class="payslip-letterhead slds-m-bottom_large">
+                <div>
+                    <strong>Selegic India Private Limited</strong>
+                    <div>Webel IT Park, PH-2, DH Block Action Area 1D, Newtown Kolkata</div>
+                    <div>700160 India</div>
+                </div>
+                <div class="letterhead-month">
+                    <span>Payslip For the Month</span>
+                    <strong>{payPeriod}</strong>
+                </div>
+            </div>
+
+            <div class="slds-grid slds-wrap slds-gutters slds-m-bottom_large">
+                <section class="slds-col slds-size_1-of-1 slds-large-size_7-of-12 employee-summary">
+                    <h2 class="section-label slds-m-bottom_small">EMPLOYEE SUMMARY</h2>
+                    <div class="slds-grid slds-wrap slds-gutters">
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2"><lightning-input label="Employee Name" value={employeeName} data-field="employeeName" onchange={handleHeaderChange} required></lightning-input></div>
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2"><lightning-input label="Employee ID" value={employeeId} data-field="employeeId" onchange={handleHeaderChange}></lightning-input></div>
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2"><lightning-input label="Pay Period" value={payPeriod} data-field="payPeriod" onchange={handleHeaderChange} required></lightning-input></div>
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2"><lightning-input type="date" label="Pay Date" value={payDate} data-field="payDate" onchange={handleHeaderChange}></lightning-input></div>
+                    </div>
+                </section>
+                <section class="slds-col slds-size_1-of-1 slds-large-size_5-of-12 net-summary">
+                    <div class="net-highlight slds-p-around_medium">
+                        <span>Total Net Pay</span>
+                        <lightning-formatted-number value={netPay} format-style="currency" currency-code="INR" maximum-fraction-digits="2"></lightning-formatted-number>
+                    </div>
+                    <div class="slds-grid slds-gutters slds-p-around_small">
+                        <div class="slds-col"><lightning-input type="number" label="Paid Days" value={paidDays} data-field="paidDays" min="0" step="0.5" onchange={handleHeaderChange}></lightning-input></div>
+                        <div class="slds-col"><lightning-input type="number" label="LOP Days" value={lopDays} data-field="lopDays" min="0" step="0.5" onchange={handleHeaderChange}></lightning-input></div>
+                    </div>
+                </section>
+            </div>
+
+            <section class="employee-details slds-m-bottom_large">
+                <h2 class="section-label slds-m-bottom_small">EMPLOYEE DETAILS</h2>
+                <div class="slds-grid slds-wrap slds-gutters">
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2"><lightning-input label="Designation" value={designation} data-field="designation" onchange={handleHeaderChange}></lightning-input></div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2"><lightning-input label="Bank A/C Number" value={bankAccountNumber} data-field="bankAccountNumber" onchange={handleHeaderChange}></lightning-input></div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2"><lightning-input label="PF Number" value={pfNumber} data-field="pfNumber" onchange={handleHeaderChange}></lightning-input></div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2"><lightning-input label="UAN Number" value={uanNumber} data-field="uanNumber" onchange={handleHeaderChange}></lightning-input></div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2"><lightning-input label="PAN" value={pan} data-field="pan" onchange={handleHeaderChange}></lightning-input></div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2"><lightning-input type="date" label="D.O.J" value={dateOfJoining} data-field="dateOfJoining" onchange={handleHeaderChange}></lightning-input></div>
+                </div>
+            </section>
+
+            <div class="slds-grid slds-wrap slds-gutters slds-m-top_large">
+                <section class="slds-col slds-size_1-of-1 slds-large-size_1-of-2 pay-section">
+                    <div class="section-heading slds-m-bottom_small">
+                        <div><h2 class="slds-text-heading_small">Earnings</h2><p class="intro">Add or remove earning lines.</p></div>
+                        <lightning-button label="Add Earning" icon-name="utility:add" data-kind="earnings" onclick={handleAddLine}></lightning-button>
+                    </div>
+                    <template for:each={earnings} for:item="line">
+                        <div key={line.id} class="line-row slds-grid slds-gutters slds-p-vertical_x-small">
+                            <div class="slds-col slds-size_8-of-12"><lightning-input variant="label-hidden" label="Earning description" value={line.description} data-kind="earnings" data-id={line.id} data-field="description" onchange={handleLineChange} placeholder="Earning description"></lightning-input></div>
+                            <div class="slds-col slds-size_3-of-12"><lightning-input type="number" variant="label-hidden" label="Earning amount in rupees" value={line.amount} data-kind="earnings" data-id={line.id} data-field="amount" min="0" step="0.01" onchange={handleLineChange} placeholder="0.00"></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-12 remove-cell"><lightning-button-icon icon-name="utility:delete" variant="bare" alternative-text="Remove earning" title="Remove earning" data-kind="earnings" data-id={line.id} onclick={handleRemoveLine}></lightning-button-icon></div>
+                        </div>
+                    </template>
+                    <div class="subtotal slds-p-vertical_small"><span>Gross Earnings</span><lightning-formatted-number value={gross} format-style="currency" currency-code="INR" maximum-fraction-digits="2"></lightning-formatted-number></div>
+                </section>
+
+                <section class="slds-col slds-size_1-of-1 slds-large-size_1-of-2 pay-section">
+                    <div class="section-heading slds-m-bottom_small">
+                        <div><h2 class="slds-text-heading_small">Deductions</h2><p class="intro">Add or remove deduction lines.</p></div>
+                        <lightning-button label="Add Deduction" icon-name="utility:add" data-kind="deductions" onclick={handleAddLine}></lightning-button>
+                    </div>
+                    <template for:each={deductions} for:item="line">
+                        <div key={line.id} class="line-row slds-grid slds-gutters slds-p-vertical_x-small">
+                            <div class="slds-col slds-size_8-of-12"><lightning-input variant="label-hidden" label="Deduction description" value={line.description} data-kind="deductions" data-id={line.id} data-field="description" onchange={handleLineChange} placeholder="Deduction description"></lightning-input></div>
+                            <div class="slds-col slds-size_3-of-12"><lightning-input type="number" variant="label-hidden" label="Deduction amount in rupees" value={line.amount} data-kind="deductions" data-id={line.id} data-field="amount" min="0" step="0.01" onchange={handleLineChange} placeholder="0.00"></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-12 remove-cell"><lightning-button-icon icon-name="utility:delete" variant="bare" alternative-text="Remove deduction" title="Remove deduction" data-kind="deductions" data-id={line.id} onclick={handleRemoveLine}></lightning-button-icon></div>
+                        </div>
+                    </template>
+                    <div class="subtotal slds-p-vertical_small"><span>Total Deductions</span><lightning-formatted-number value={deductionTotal} format-style="currency" currency-code="INR" maximum-fraction-digits="2"></lightning-formatted-number></div>
+                </section>
+            </div>
+
+            <div class="net-panel slds-m-top_medium slds-p-around_medium">
+                <span>Net Pay</span>
+                <lightning-formatted-number value={netPay} format-style="currency" currency-code="INR" maximum-fraction-digits="2"></lightning-formatted-number>
+            </div>
+            <div class="actions slds-m-top_medium">
+                <lightning-button label="Download Payslip PDF" variant="brand" onclick={handleDownload} disabled={isBusy}></lightning-button>
+            </div>
+            <template if:true={isBusy}>
+                <div class="spinner-wrap"><lightning-spinner alternative-text="Preparing payslip" size="small"></lightning-spinner></div>
+            </template>
+            <a class="download-link" data-id="downloadLink" aria-hidden="true" tabindex="-1"></a>
+        </div>
+    </lightning-card>
+</template>

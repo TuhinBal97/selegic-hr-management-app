@@ -1,0 +1,141 @@
+.intro {
+    color: var(--lwc-colorTextWeak, #5c5c5c);
+    font-size: 0.8125rem;
+}
+
+.payslip-letterhead {
+    align-items: flex-start;
+    border-bottom: 1px solid #cbd2df;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 0 1rem;
+}
+
+.payslip-letterhead > div:first-child > strong {
+    color: #333;
+    display: block;
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.payslip-letterhead > div:first-child > div,
+.letterhead-month span {
+    color: #6b6b6b;
+    font-size: 0.8125rem;
+}
+
+.letterhead-month {
+    min-width: 10rem;
+    text-align: right;
+}
+
+.letterhead-month span,
+.letterhead-month strong {
+    display: block;
+}
+
+.letterhead-month strong {
+    color: #222;
+    font-size: 1rem;
+    margin-top: 0.25rem;
+}
+
+.section-label {
+    color: #666;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+
+.employee-summary,
+.employee-details {
+    border-bottom: 1px dashed #d4d9e0;
+    padding-bottom: 1rem;
+}
+
+.net-summary {
+    border: 1px solid #cbd2df;
+    border-radius: 0.65rem;
+    overflow: hidden;
+}
+
+.net-highlight {
+    background: #edfaf0;
+    border-left: 4px solid #55c96b;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.net-highlight > span {
+    color: #64846b;
+    font-size: 0.8rem;
+}
+
+.net-highlight lightning-formatted-number {
+    color: #1d1d1d;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.section-heading {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.line-row {
+    align-items: center;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.remove-cell {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    padding-top: 0.75rem;
+}
+
+.pay-section {
+    margin-bottom: 1rem;
+}
+
+.subtotal,
+.net-panel {
+    align-items: center;
+    display: flex;
+    font-weight: 700;
+    justify-content: space-between;
+}
+
+.subtotal {
+    border-top: 1px solid #c9c9c9;
+    margin-top: 0.5rem;
+}
+
+.net-panel {
+    background: #f3faf4;
+    border: 1px solid #b7dfbd;
+    border-radius: 0.25rem;
+    font-size: 1.125rem;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.spinner-wrap {
+    min-height: 2.5rem;
+    position: relative;
+}
+
+.download-link {
+    height: 0;
+    overflow: hidden;
+    position: absolute;
+    width: 0;
+}
