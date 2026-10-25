@@ -142,6 +142,7 @@ public with sharing class PayrollDocumentController {
         if (netPay != 1) {
             amountInWords = amountInWords.replace('Indian Rupee ', 'Indian Rupees ');
         }
+        amountInWords = amountInWords.replace('Indian Rupees ', '').replace('Indian Rupee ', '');
         payload.put('amountInWords', amountInWords);
 
         PageReference payslipPage = Page.OfficeDocumentPdf;
@@ -257,7 +258,9 @@ public with sharing class PayrollDocumentController {
             payslipMonth = monthNames[today.month() - 1] + ' ' + today.year();
         }
         String address = escapeHtmlWithBreaks(PAYSLIP_COMPANY_ADDRESS);
-        String amountInWords = escapeHtml(indianRupeesInWords(netPay));
+        String amountInWords = escapeHtml(
+            indianRupeesInWords(netPay).replace('Indian Rupees ', '').replace('Indian Rupee ', '')
+        );
         return '<html><head><meta charset="UTF-8"/><style type="text/css">' +
             '@page { size: A4; margin: 12mm; }' +
             'body { font-family: Arial, Helvetica, sans-serif; color: #333; font-size: 9pt; }' +

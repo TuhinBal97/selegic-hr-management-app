@@ -28,49 +28,49 @@
                 .notes { white-space: pre-line; margin-top: 12px; }
                 .payslip { font-size: 10pt; color: #181818; }
                 .rupee { vertical-align: middle; }
-                .payslip-top { border-bottom: 1px solid #222; }
+                .payslip-top { border-bottom: 1px solid #d2d2d2; }
                 .payslip-top td { vertical-align: middle; padding: 12px 5px; }
-                .payslip-logo { text-align: center; border-right: 1px solid #777; padding-right: 10px !important; }
+                .payslip-logo { text-align: center; border-right: 1px solid #d2d2d2; padding-right: 10px !important; }
                 .payslip-company { font-size: 16pt; font-weight: bold; white-space: nowrap; }
                 .payslip-month { text-align: right; line-height: 1.5; }
-                .payslip-title { background: #e7e7e7; text-align: center; margin: 4px 0 7px; padding: 5px 4px 6px; }
+                .payslip-title { background: #f3f3f3; text-align: center; margin: 4px 0 7px; padding: 5px 4px 6px; }
                 .payslip-title strong { display: block; font-size: 22pt; line-height: 1.1; }
                 .payslip-title span { font-size: 8pt; letter-spacing: 2.5px; }
                 .summary-cards { margin-bottom: 7px; table-layout: fixed; }
                 .summary-cards, .employee-details, .payable { page-break-inside: avoid; }
-                .summary-panel { vertical-align: top; padding: 0; border: 1px solid #555; }
-                .summary-gap { padding: 0; border: 0; }
-                .summary-card td { border-bottom: 1px solid #c9c9c9; padding: 7px 8px; }
+                .summary-panel { vertical-align: top; padding: 0; border: 0; border-bottom: 1px solid #dedede; }
+                .summary-gap { padding: 0; border: 0; border-bottom: 1px solid #dedede; }
+                .summary-card td { border-bottom: 0; padding: 4px 8px; }
                 .summary-card tr:last-child td { border-bottom: 0; }
-                .card-heading { background: #666; color: #fff; font-weight: bold; padding: 6px 9px !important; }
-                .employee-summary .field-label { width: 42%; background: #eee; color: #333; border-right: 1px solid #c9c9c9; }
+                .card-heading { background: transparent; color: #686868; font-weight: bold; padding: 0 8px 6px !important; }
+                .employee-summary .field-label { width: 42%; background: transparent; color: #686868; border-right: 0; }
                 .field-colon { float: right; color: #777; }
-                .employee-summary .field-value { font-weight: bold; border-left: 1px solid #c9c9c9; }
+                .employee-summary .field-value { font-weight: normal; border-left: 0; }
                 .summary-spacer td { height: 10px; padding: 0; }
-                .net-heading { background: #dedede; color: #181818; font-weight: bold; padding: 7px 9px !important; }
-                .net-value { background: #eee; text-align: center; font-size: 25pt; font-weight: bold; padding: 10px 4px !important; white-space: nowrap; }
-                .amount-words { padding: 9px 9px !important; line-height: 1.4; }
+                .net-heading { background: transparent; color: #686868; font-weight: bold; padding: 0 5px 5px !important; }
+                .net-value { background: #f3f3f3; text-align: center; font-size: 25pt; font-weight: bold; padding: 8px 4px !important; white-space: nowrap; }
+                .amount-words { padding: 5px 5px !important; line-height: 1.35; }
                 .amount-words strong { display: block; color: #181818; }
-                .days-label { background: #eee; width: 55%; border-right: 1px solid #c9c9c9; }
-                .days-value { text-align: center; width: 45%; border-left: 1px solid #c9c9c9; }
-                .employee-details { border: 1px solid #555; margin-bottom: 7px; }
-                .employee-details td { border: 1px solid #c9c9c9; padding: 8px 7px; }
-                .employee-details .field-label { background: #eee; color: #333; }
+                .days-label { background: transparent; color: #686868; width: 55%; border-right: 0; }
+                .days-value { text-align: right; color: #686868; width: 45%; border-left: 0; padding-right: 8px !important; }
+                .employee-details { border: 0; border-bottom: 1px solid #dedede; margin-bottom: 7px; }
+                .employee-details td { border: 0; padding: 4px 7px; }
+                .employee-details .field-label { background: transparent; color: #686868; }
                 .employee-details .field-value { white-space: nowrap; }
                 .pay-table { border: 1px solid #555; table-layout: fixed; margin-bottom: 7px; page-break-inside: auto; }
                 .pay-table thead { display: table-header-group; }
-                .pay-table th, .pay-table td { border: 1px solid #bcbcbc; padding: 8px 6px; }
-                .pay-table th { background: #666; color: #fff; text-align: left; }
+                .pay-table th, .pay-table td { border: 1px solid #d2d2d2; padding: 8px 6px; }
+                .pay-table th { background: #777; color: #fff; text-align: left; }
                 .pay-table th.amount { text-align: center; white-space: nowrap; }
                 .pay-table td.amount { text-align: right; white-space: nowrap; }
-                .pay-table .totals-row { background: #e8e8e8; font-weight: bold; }
+                .pay-table .totals-row { background: #f2f2f2; font-weight: bold; }
                 .pay-table .pay-gutter { width: 2%; border: 0; padding: 0; background: #fff; }
-                .payable { border: 1px solid #555; margin-bottom: 7px; }
-                .payable td { border: 1px solid #bcbcbc; padding: 12px 9px; }
+                .payable { border: 1px solid #d0d0d0; margin-bottom: 7px; }
+                .payable td { border: 1px solid #d2d2d2; padding: 12px 9px; }
                 .payable-title { font-size: 15pt; }
-                .payable-amount { background: #e8e8e8; text-align: center; font-size: 23pt; font-weight: bold; white-space: nowrap; }
-                .footer { border-top: 1px solid #333; margin-top: 2px; padding-top: 9px; color: #666; text-align: center; font-size: 8pt; }
-                .confidentiality { margin-top: 8px; font-size: 8pt; color: #555; }
+                .payable-amount { background: #f2f2f2; text-align: center; font-size: 23pt; font-weight: bold; white-space: nowrap; }
+                .footer { border-top: 1px solid #d0d0d0; margin-top: 2px; padding-top: 9px; color: #777; text-align: center; font-size: 8pt; }
+                .confidentiality { margin-top: 8px; font-size: 8pt; color: #666; }
             </style>
         </head>
         <body>
