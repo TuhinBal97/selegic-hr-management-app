@@ -17,6 +17,36 @@ function formatPdfDate(value, separator = '/') {
     return `${day}${separator}${month}${separator}${year}`;
 }
 
+function payPeriodFilenameLabel(value) {
+    const period = String(value || '').trim();
+    const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    const yearMonth = period.match(/^(\d{4})[-/](\d{1,2})(?:[-/]\d{1,2})?$/);
+    if (yearMonth && Number(yearMonth[2]) >= 1 && Number(yearMonth[2]) <= 12) {
+        return `${monthNames[Number(yearMonth[2]) - 1]} ${yearMonth[1]}`;
+    }
+
+    const monthYear = period.match(/^([a-z]+)[\s,/-]+(\d{4})$/i);
+    if (monthYear) {
+        const monthInput = monthYear[1].toLowerCase();
+        const monthIndex = monthNames.findIndex((month) =>
+            month.toLowerCase() === monthInput || month.slice(0, 3).toLowerCase() === monthInput.slice(0, 3)
+        );
+        if (monthIndex >= 0) {
+            return `${monthNames[monthIndex]} ${monthYear[2]}`;
+        }
+    }
+
+    const monthNumberYear = period.match(/^(\d{1,2})[/-](\d{4})$/);
+    if (monthNumberYear && Number(monthNumberYear[1]) >= 1 && Number(monthNumberYear[1]) <= 12) {
+        return `${monthNames[Number(monthNumberYear[1]) - 1]} ${monthNumberYear[2]}`;
+    }
+
+    return period.replace(/[<>:"\/\\|?*\u0000-\u001f]/g, ' ').replace(/\s+/g, ' ').trim() || 'Pay Period';
+}
+
 function errorMessage(error) {
     return error?.body?.message || error?.message || 'The payslip could not be processed.';
 }
@@ -58,7 +88,6 @@ export default class EmployeePaySlip extends LightningElement {
         makeLine('BYOD')
     ];
     deductions = [
-        makeLine('Income Tax'),
         makeLine('Provident Fund'),
         makeLine('P-Tax')
     ];
@@ -156,8 +185,8 @@ export default class EmployeePaySlip extends LightningElement {
         this.isBusy = true;
         try {
             const pdf = await generatePayslipPdf({ payslipJson: this.buildPayload() });
-            const safeName = this.employeeName.trim().replace(/[^A-Za-z0-9_-]/g, '-');
-            downloadBase64Pdf(this, pdf, `payslip-${safeName || 'employee'}-${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}.pdf`);
+            const periodLabel = payPeriodFilenameLabel(this.payPeriod);
+            downloadBase64Pdf(this, pdf, `Salary Slip – ${periodLabel}.pdf`);
             this.showToast('Payslip ready', 'The PDF has been downloaded.', 'success');
         } catch (error) {
             this.showToast('Could not create payslip', errorMessage(error), 'error');

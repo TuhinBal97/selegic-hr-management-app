@@ -177,7 +177,7 @@ public with sharing class PayrollDocumentController {
             'body { font-family: Arial, Helvetica, sans-serif; color: #111; font-size: 9pt; }' +
             'table { width: 100%; border-collapse: collapse; }' +
             '.invoice-frame { border: 1px solid #999; border-collapse: collapse; position: relative; z-index: 1; }' +
-            '.watermark { position: fixed; top: 31%; left: 7%; width: 86%; z-index: 0; border: 0; }' +
+            '.watermark { position: fixed; top: 27%; left: 0; width: 100%; z-index: 0; border: 0; }' +
             '.invoice-frame td, .invoice-frame th { border: 1px solid #999; }' +
             '.header-content td, .metadata td, .totals td { border: 0; }' +
             '.top-cell { padding: 7px; height: 62px; vertical-align: top; }' +

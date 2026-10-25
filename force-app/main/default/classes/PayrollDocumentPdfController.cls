@@ -119,6 +119,9 @@ public with sharing class PayrollDocumentPdfController {
         List<PayLine> earnings = data.earnings == null ? new List<PayLine>() : data.earnings;
         List<PayLine> deductions = data.deductions == null ? new List<PayLine>() : data.deductions;
         Integer rowCount = earnings.size() > deductions.size() ? earnings.size() : deductions.size();
+        if (rowCount < 7) {
+            rowCount = 7;
+        }
         for (Integer index = 0; index < rowCount; index++) {
             PayRow row = new PayRow();
             if (index < earnings.size()) {
