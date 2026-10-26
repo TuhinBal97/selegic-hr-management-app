@@ -3,8 +3,9 @@
         <head>
             <meta charset="UTF-8"/>
             <style type="text/css">
-                @page { size: A4; margin: {!IF(isPayslip, '10mm 8mm', '16mm 14mm')}; }
+                @page { size: A4; margin: {!IF(isPayslip, '18mm 14mm 15mm', '16mm 14mm')}; }
                 body { font-family: Arial, Helvetica, sans-serif; color: #181818; font-size: 10pt; }
+                .payslip-body { margin: 0; }
                 table { width: 100%; border-collapse: collapse; }
                 .brand { font-size: 20pt; font-weight: bold; }
                 .green { color: #4caf5a; }
@@ -26,54 +27,50 @@
                 .invoice-words { width: 58%; vertical-align: top; padding: 10px 8px; }
                 .invoice-totals { width: 42%; vertical-align: top; border-left: 1px solid #a5a5a5; }
                 .notes { white-space: pre-line; margin-top: 12px; }
-                .payslip { font-size: 10pt; color: #181818; }
-                .rupee { vertical-align: middle; }
-                .payslip-top { border-bottom: 1px solid #d2d2d2; }
-                .payslip-top td { vertical-align: middle; padding: 12px 5px; }
-                .payslip-logo { text-align: center; border-right: 1px solid #d2d2d2; padding-right: 10px !important; }
-                .payslip-company { font-size: 16pt; font-weight: bold; white-space: nowrap; }
-                .payslip-month { text-align: right; line-height: 1.5; }
-                .payslip-title { background: #f3f3f3; text-align: center; margin: 4px 0 7px; padding: 5px 4px 6px; }
-                .payslip-title strong { display: block; font-size: 22pt; line-height: 1.1; }
-                .payslip-title span { font-size: 8pt; letter-spacing: 2.5px; }
-                .summary-cards { margin-bottom: 7px; table-layout: fixed; }
-                .summary-cards, .employee-details, .payable { page-break-inside: avoid; }
-                .summary-panel { vertical-align: top; padding: 0; border: 0; border-bottom: 1px solid #dedede; }
-                .summary-gap { padding: 0; border: 0; border-bottom: 1px solid #dedede; }
-                .summary-card td { border-bottom: 0; padding: 4px 8px; }
-                .summary-card tr:last-child td { border-bottom: 0; }
-                .card-heading { background: transparent; color: #686868; font-weight: bold; padding: 0 8px 6px !important; }
-                .employee-summary .field-label { width: 42%; background: transparent; color: #686868; border-right: 0; }
-                .field-colon { float: right; color: #777; }
-                .employee-summary .field-value { font-weight: normal; border-left: 0; }
-                .summary-spacer td { height: 10px; padding: 0; }
-                .net-heading { background: transparent; color: #686868; font-weight: bold; padding: 0 5px 5px !important; }
-                .net-value { background: #f3f3f3; text-align: center; font-size: 25pt; font-weight: bold; padding: 8px 4px !important; white-space: nowrap; }
-                .amount-words { padding: 5px 5px !important; line-height: 1.35; }
-                .amount-words strong { display: block; color: #181818; }
-                .days-label { background: transparent; color: #686868; width: 55%; border-right: 0; }
-                .days-value { text-align: right; color: #686868; width: 45%; border-left: 0; padding-right: 8px !important; }
-                .employee-details { border: 0; border-bottom: 1px solid #dedede; margin-bottom: 7px; }
-                .employee-details td { border: 0; padding: 4px 7px; }
-                .employee-details .field-label { background: transparent; color: #686868; }
-                .employee-details .field-value { white-space: nowrap; }
-                .pay-table { border: 1px solid #555; table-layout: fixed; margin-bottom: 7px; page-break-inside: auto; }
+                .payslip-watermark { position: fixed; top: 39%; left: 17.5%; width: 65%; opacity: 0.6; z-index: 0; }
+                .payslip-frame { border: 1px solid #999; box-sizing: border-box; min-height: 262mm; position: relative; z-index: 1; }
+                .payslip { color: #171717; font-family: Arial, Helvetica, sans-serif; font-size: 9pt; position: relative; z-index: 2; padding-bottom: 24mm; }
+                .payslip-head { border-bottom: 1px solid #999; table-layout: fixed; }
+                .payslip-head td { padding: 7px 5px 8px; vertical-align: middle; }
+                .payslip-logo { border-right: 1px solid #999; padding-right: 7px !important; text-align: center; }
+                .payslip-company { font-size: 14pt; font-weight: bold; white-space: nowrap; }
+                .payslip-address { font-size: 9pt; line-height: 1.3; }
+                .payslip-document-title { font-size: 25pt; font-weight: normal; text-align: right; white-space: nowrap; }
+                .payslip-period { font-size: 10pt; font-weight: bold; margin-top: 4px; text-align: right; }
+                .payslip-confidential-label { color: #4f4f4f; font-size: 7.2pt; margin-top: 3px; text-align: right; }
+                .payslip-section { border: 1px solid #999; margin-top: 0; page-break-inside: avoid; table-layout: fixed; }
+                .payslip-section th { background: #f0f0f0; border: 1px solid #999; font-size: 9pt; font-weight: bold; padding: 4px 6px; text-align: left; }
+                .payslip-section > tbody > tr > td { border: 1px solid #999; padding: 5px 6px; vertical-align: top; }
+                .field-list { border: 0; table-layout: fixed; width: 100%; }
+                .field-list td { border: 0; line-height: 1.25; padding: 3px 2px; vertical-align: top; }
+                .field-label { color: #171717; font-weight: bold; }
+                .field-colon { text-align: center; }
+                .field-value { color: #171717; font-weight: normal; }
+                .employee-details { margin-top: 0; page-break-inside: avoid; }
+                .employee-details .detail-panel { padding: 3px 5px !important; }
+                .pay-table { margin-top: 0; page-break-inside: avoid; table-layout: fixed; }
                 .pay-table thead { display: table-header-group; }
-                .pay-table th, .pay-table td { border: 1px solid #d2d2d2; padding: 8px 6px; }
-                .pay-table th { background: #777; color: #fff; text-align: left; }
-                .pay-table th.amount { text-align: center; white-space: nowrap; }
-                .pay-table td.amount { text-align: right; white-space: nowrap; }
-                .pay-table .totals-row { background: #f2f2f2; font-weight: bold; }
-                .pay-table .pay-gutter { width: 2%; border: 0; padding: 0; background: #fff; }
-                .payable { border: 1px solid #d0d0d0; margin-bottom: 7px; }
-                .payable td { border: 1px solid #d2d2d2; padding: 12px 9px; }
-                .payable-title { font-size: 15pt; }
-                .payable-amount { background: #f2f2f2; text-align: center; font-size: 23pt; font-weight: bold; white-space: nowrap; }
-                .footer { border-top: 1px solid #d0d0d0; margin-top: 2px; padding-top: 9px; color: #777; text-align: center; font-size: 8pt; }
-                .confidentiality { margin-top: 8px; font-size: 8pt; color: #666; }
+                .pay-table th, .pay-table td { border: 1px solid #999; padding: 5px 6px; }
+                .pay-table th { background: #f0f0f0; color: #171717; font-size: 9pt; font-weight: bold; text-align: left; }
+                .pay-table th.amount, .pay-table td.amount { text-align: right; white-space: nowrap; }
+                .pay-table .totals-row { background: #f0f0f0; }
+                .pay-table .totals-row td:first-child, .pay-table .totals-row td:nth-child(3) { font-weight: bold; }
+                .payslip-total { border: 1px solid #999; margin-top: 0; page-break-inside: avoid; table-layout: fixed; }
+                .words-cell { border-right: 1px solid #999; padding: 8px; vertical-align: top; }
+                .words-title { font-weight: bold; margin-bottom: 7px; }
+                .words-value { font-weight: normal; }
+                .calculation { color: #4f4f4f; font-size: 8pt; margin-top: 11px; }
+                .totals-cell { padding: 4px 7px; vertical-align: top; }
+                .totals-summary { width: 100%; }
+                .totals-summary td { border: 0; font-size: 9pt; padding: 3px 2px; }
+                .totals-summary .amount { text-align: right; white-space: nowrap; }
+                .totals-summary .net-total td { background: #e8f2e5; border-top: 1px solid #b0b0b0; font-size: 11pt; font-weight: bold; padding-top: 6px; }
+                .totals-summary .net-total .amount { font-size: 10.5pt; }
+                .confidentiality { border-top: 1px solid #b8b8b8; color: #666; font-size: 8pt; margin: 13px 0 0; padding: 6px 5px 0; }
+                .footer { background: #fff; border-top: 1px solid #999; bottom: 3mm; color: #666; font-size: 8pt; left: 0; padding-top: 5px; position: absolute; right: 0; text-align: center; }
             </style>
         </head>
-        <body>
+        <body class="{!IF(isPayslip, 'payslip-body', 'invoice-body')}">
             <apex:outputPanel layout="block" rendered="{!isInvoice}">
                 <table class="invoice-box">
                     <tr class="invoice-head">
@@ -95,61 +92,79 @@
             </apex:outputPanel>
 
             <apex:outputPanel layout="block" rendered="{!isPayslip}">
-                <div class="payslip">
-                    <table class="payslip-top">
-                        <tr>
-                            <td class="payslip-logo" width="23%"><apex:image value="{!$Resource.SelegicLogo}" width="125" alt="Selegic"/></td>
-                            <td width="51%"><div class="payslip-company">Selegic India Private Limited</div><div class="muted">Webel IT Park, PH-2, DH Block Action Area 1D,<br/>Newtown Kolkata – 700160, India</div></td>
-                            <td class="payslip-month" width="26%"><span class="muted">Payslip For the Month</span><br/><strong><apex:outputText value="{!payslip.payPeriod}" escape="true"/></strong></td>
-                        </tr>
-                    </table>
-                    <div class="payslip-title"><strong>SALARY SLIP</strong><span>CONFIDENTIAL EMPLOYEE DOCUMENT</span></div>
-                    <table class="summary-cards">
-                        <tr>
-                            <td class="summary-panel" width="49%">
-                                <table class="summary-card employee-summary">
-                                    <tr><td colspan="2" class="card-heading">EMPLOYEE SUMMARY</td></tr>
-                                    <tr><td class="field-label">Employee Name <span class="field-colon">:</span></td><td class="field-value"><apex:outputText value="{!payslip.employeeName}" escape="true"/></td></tr>
-                                    <tr><td class="field-label">Employee ID <span class="field-colon">:</span></td><td class="field-value"><apex:outputText value="{!payslip.employeeId}" escape="true"/></td></tr>
-                                    <tr><td class="field-label">Designation <span class="field-colon">:</span></td><td class="field-value"><apex:outputText value="{!payslip.designation}" escape="true"/></td></tr>
-                                    <tr><td class="field-label">Pay Period <span class="field-colon">:</span></td><td class="field-value"><apex:outputText value="{!payslip.payPeriod}" escape="true"/></td></tr>
-                                    <tr><td class="field-label">Pay Date <span class="field-colon">:</span></td><td class="field-value"><apex:outputText value="{!payslip.payDate}" escape="true"/></td></tr>
-                                    <tr class="summary-spacer"><td colspan="2"></td></tr>
-                                </table>
-                            </td>
-                            <td width="2%" class="summary-gap"></td>
-                            <td class="summary-panel" width="49%">
-                                <table class="summary-card">
-                                    <tr><td colspan="2" class="net-heading">NET SALARY PAYABLE</td></tr>
-                                    <tr><td colspan="2" class="net-value"><apex:image value="{!$Resource.PayslipRupeeSymbol}" height="21" styleClass="rupee" alt="₹"/>&#160;<apex:outputText value="{!payslip.netPayFormatted}" escape="true"/></td></tr>
-                                    <tr><td colspan="2" class="amount-words"><span class="muted">Amount in words:</span><strong><apex:outputText value="{!payslip.amountInWords}" escape="true"/></strong></td></tr>
-                                    <tr><td class="days-label">Paid Days</td><td class="days-value"><apex:outputText value="{!payslip.paidDays}" escape="true"/></td></tr>
-                                    <tr><td class="days-label">LOP Days</td><td class="days-value"><apex:outputText value="{!payslip.lopDays}" escape="true"/></td></tr>
-                                </table>
-                            </td>
-                        </tr>
-                    </table>
+                <apex:image value="{!$Resource.SelegicInvoiceWatermark}" styleClass="payslip-watermark" alt="Selegic watermark"/>
+                <div class="payslip-frame">
+                    <div class="payslip">
+                        <table class="payslip-head">
+                            <tr>
+                                <td class="payslip-logo" width="17%"><apex:image value="{!$Resource.SelegicLogo}" width="100" alt="Selegic"/></td>
+                                <td width="47%"><div class="payslip-company">SELEGIC INDIA PRIVATE LIMITED</div><div class="payslip-address">Webel IT Park, PH-2, DH Block Action Area 1D,<br/>Newtown Kolkata - 700160, India</div></td>
+                                <td width="36%"><div class="payslip-document-title">Salary Slip</div><div class="payslip-period"><apex:outputText value="{!payslip.payPeriod}" escape="true"/></div><div class="payslip-confidential-label">CONFIDENTIAL EMPLOYEE DOCUMENT</div></td>
+                            </tr>
+                        </table>
 
-                    <table class="employee-details">
-                        <tr><td colspan="4" class="card-heading">EMPLOYEE DETAILS</td></tr>
-                        <tr><td class="field-label" width="24%">PF Number <span class="field-colon">:</span></td><td class="field-value" width="32%"><apex:outputText value="{!payslip.pfNumber}" escape="true"/></td><td class="field-label" width="21%">UAN Number <span class="field-colon">:</span></td><td class="field-value" width="23%"><apex:outputText value="{!payslip.uanNumber}" escape="true"/></td></tr>
-                        <tr><td class="field-label">PAN <span class="field-colon">:</span></td><td class="field-value"><apex:outputText value="{!payslip.pan}" escape="true"/></td><td class="field-label">Date of Joining <span class="field-colon">:</span></td><td class="field-value"><apex:outputText value="{!payslip.dateOfJoining}" escape="true"/></td></tr>
-                        <tr><td class="field-label">Bank A/C Number <span class="field-colon">:</span></td><td class="field-value"><apex:outputText value="{!payslip.bankAccountNumber}" escape="true"/></td><td class="field-label"></td><td class="field-value"></td></tr>
-                    </table>
+                        <table class="payslip-section summary-grid">
+                            <thead><tr><th width="50%">EMPLOYEE SUMMARY</th><th width="50%">PAY DETAILS</th></tr></thead>
+                            <tbody><tr>
+                                <td><table class="field-list">
+                                    <tr><td class="field-label" width="38%">Employee Name</td><td class="field-colon" width="4%">:</td><td class="field-value" width="58%"><apex:outputText value="{!payslip.employeeName}" escape="true"/></td></tr>
+                                    <tr><td class="field-label">Employee ID</td><td class="field-colon">:</td><td class="field-value"><apex:outputText value="{!payslip.employeeId}" escape="true"/></td></tr>
+                                    <tr><td class="field-label">Designation</td><td class="field-colon">:</td><td class="field-value"><apex:outputText value="{!payslip.designation}" escape="true"/></td></tr>
+                                </table></td>
+                                <td><table class="field-list">
+                                    <tr><td class="field-label" width="38%">Pay Period</td><td class="field-colon" width="4%">:</td><td class="field-value" width="58%"><apex:outputText value="{!payslip.payPeriod}" escape="true"/></td></tr>
+                                    <tr><td class="field-label">Pay Date</td><td class="field-colon">:</td><td class="field-value"><apex:outputText value="{!payslip.payDate}" escape="true"/></td></tr>
+                                    <tr><td class="field-label">Paid Days</td><td class="field-colon">:</td><td class="field-value"><apex:outputText value="{!payslip.paidDays}" escape="true"/></td></tr>
+                                    <tr><td class="field-label">LOP Days</td><td class="field-colon">:</td><td class="field-value"><apex:outputText value="{!payslip.lopDays}" escape="true"/></td></tr>
+                                </table></td>
+                            </tr></tbody>
+                        </table>
 
-                    <table class="pay-table">
-                        <thead><tr>
-                            <th width="34%">EARNINGS</th><th class="amount" width="15%">AMOUNT (<apex:image value="{!$Resource.PayslipRupeeSymbolWhite}" height="6" styleClass="rupee" alt="₹"/>)</th><td class="pay-gutter"></td><th width="34%">DEDUCTIONS</th><th class="amount" width="15%">AMOUNT (<apex:image value="{!$Resource.PayslipRupeeSymbolWhite}" height="6" styleClass="rupee" alt="₹"/>)</th>
-                        </tr></thead>
-                        <tbody>
-                            <apex:repeat value="{!payRows}" var="row"><tr><td><apex:outputText value="{!row.earning.description}" escape="true" rendered="{!row.hasEarning}"/></td><td class="amount"><apex:outputText value="{!row.earning.amountFormatted}" escape="true" rendered="{!row.hasEarning}"/></td><td class="pay-gutter"></td><td><apex:outputText value="{!row.deduction.description}" escape="true" rendered="{!row.hasDeduction}"/></td><td class="amount"><apex:outputText value="{!row.deduction.amountFormatted}" escape="true" rendered="{!row.hasDeduction}"/></td></tr></apex:repeat>
-                            <tr class="totals-row"><td>Gross Earnings</td><td class="amount"><apex:outputText value="{!payslip.grossFormatted}" escape="true"/></td><td class="pay-gutter"></td><td>Total Deductions</td><td class="amount"><apex:outputText value="{!payslip.deductionsFormatted}" escape="true"/></td></tr>
-                        </tbody>
-                    </table>
+                        <table class="payslip-section employee-details">
+                            <thead><tr><th colspan="2">EMPLOYEE DETAILS</th></tr></thead>
+                            <tbody><tr>
+                                <td class="detail-panel" width="50%"><table class="field-list">
+                                    <tr><td class="field-label" width="38%">PF Number</td><td class="field-colon" width="4%">:</td><td class="field-value" width="58%"><apex:outputText value="{!payslip.pfNumber}" escape="true"/></td></tr>
+                                    <tr><td class="field-label">PAN</td><td class="field-colon">:</td><td class="field-value"><apex:outputText value="{!payslip.pan}" escape="true"/></td></tr>
+                                    <tr><td class="field-label">Bank A/C Number</td><td class="field-colon">:</td><td class="field-value"><apex:outputText value="{!payslip.bankAccountNumber}" escape="true"/></td></tr>
+                                </table></td>
+                                <td class="detail-panel" width="50%"><table class="field-list">
+                                    <tr><td class="field-label" width="38%">UAN Number</td><td class="field-colon" width="4%">:</td><td class="field-value" width="58%"><apex:outputText value="{!payslip.uanNumber}" escape="true"/></td></tr>
+                                    <tr><td class="field-label">Date of Joining</td><td class="field-colon">:</td><td class="field-value"><apex:outputText value="{!payslip.dateOfJoining}" escape="true"/></td></tr>
+                                </table></td>
+                            </tr></tbody>
+                        </table>
 
-                    <table class="payable"><tr><td width="67%"><strong class="payable-title">TOTAL NET PAYABLE</strong><br/><span class="muted">Gross Earnings - Total Deductions</span></td><td class="payable-amount"><apex:image value="{!$Resource.PayslipRupeeSymbol}" height="21" styleClass="rupee" alt="₹"/>&#160;<apex:outputText value="{!payslip.netPayFormatted}" escape="true"/></td></tr></table>
+                        <table class="pay-table">
+                            <colgroup><col width="34%"/><col width="16%"/><col width="34%"/><col width="16%"/></colgroup>
+                            <thead><tr>
+                                <th>Earnings</th><th class="amount">Amount ( INR )</th>
+                                <th>Deductions</th><th class="amount">Amount ( INR )</th>
+                            </tr></thead>
+                            <tbody>
+                                <apex:repeat value="{!payRows}" var="row"><tr>
+                                    <td><apex:outputText value="{!row.earning.description}" escape="true" rendered="{!row.hasEarning}"/></td>
+                                    <td class="amount"><apex:outputText value="{!row.earning.amountFormatted}" escape="true" rendered="{!row.hasEarning}"/></td>
+                                    <td><apex:outputText value="{!row.deduction.description}" escape="true" rendered="{!row.hasDeduction}"/></td>
+                                    <td class="amount"><apex:outputText value="{!row.deduction.amountFormatted}" escape="true" rendered="{!row.hasDeduction}"/></td>
+                                </tr></apex:repeat>
+                                <tr class="totals-row"><td>Gross Earnings</td><td class="amount"><apex:outputText value="{!payslip.grossFormatted}" escape="true"/></td><td>Total Deductions</td><td class="amount"><apex:outputText value="{!payslip.deductionsFormatted}" escape="true"/></td></tr>
+                            </tbody>
+                        </table>
+
+                        <table class="payslip-total">
+                            <tr>
+                                <td class="words-cell" width="58%"><div class="words-title">Amount in Words</div><div class="words-value"><apex:outputText value="{!payslip.amountInWords}" escape="true"/></div><div class="calculation">Gross Earnings - Total Deductions</div></td>
+                                <td class="totals-cell" width="42%"><table class="totals-summary">
+                                    <tr><td><strong>Gross Earnings</strong></td><td class="amount"><apex:outputText value="{!payslip.grossFormatted}" escape="true"/></td></tr>
+                                    <tr><td><strong>Total Deductions</strong></td><td class="amount"><apex:outputText value="{!payslip.deductionsFormatted}" escape="true"/></td></tr>
+                                    <tr class="net-total"><td>TOTAL NET PAYABLE</td><td class="amount">INR&#160;<apex:outputText value="{!payslip.netPayFormatted}" escape="true"/></td></tr>
+                                </table></td>
+                            </tr>
+                        </table>
+                        <div class="confidentiality"><strong>Confidentiality:</strong> This payslip contains confidential employee payroll and banking information. Share only with authorised recipients.</div>
+                    </div>
                     <div class="footer">This is a system-generated document.</div>
-                    <div class="confidentiality"><strong>Confidentiality:</strong> This payslip contains confidential employee payroll and banking information. Share only with authorised recipients.</div>
                 </div>
             </apex:outputPanel>
         </body>
