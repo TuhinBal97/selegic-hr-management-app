@@ -98,6 +98,9 @@ export default class EmployeePaySlip extends LightningElement {
         makeLine('Provident Fund'),
         makeLine('P-Tax')
     ];
+    bonusDescription = 'Special Bonus';
+    bonusAmount = '';
+    bonusTdsPercent = '';
     isBusy = false;
     isLoadingEmployeeProfile = false;
     employeeProfileError = '';
@@ -175,6 +178,9 @@ export default class EmployeePaySlip extends LightningElement {
             makeLine('Provident Fund'),
             makeLine('P-Tax')
         ];
+        this.bonusDescription = 'Special Bonus';
+        this.bonusAmount = '';
+        this.bonusTdsPercent = '';
     }
 
     get gross() {
@@ -185,8 +191,37 @@ export default class EmployeePaySlip extends LightningElement {
         return this.sumLines(this.deductions);
     }
 
+    get bonusTotal() {
+        return Number(this.bonusAmount) || 0;
+    }
+
+    get bonusTitle() {
+        return this.bonusDescription.trim() || 'Special Bonus';
+    }
+
+    get bonusTotalLabel() {
+        return `Total ${this.bonusTitle}`;
+    }
+
+    get bonusTdsLabel() {
+        return `${this.bonusTitle} TDS`;
+    }
+
+    get bonusTdsTotal() {
+        const tdsPaise = Math.round(this.bonusTotal * (Number(this.bonusTdsPercent) || 0) + Number.EPSILON);
+        return tdsPaise / 100;
+    }
+
+    get netBonus() {
+        return Math.round((this.bonusTotal - this.bonusTdsTotal) * 100) / 100;
+    }
+
+    get netBonusLabel() {
+        return `Net ${this.bonusTitle}`;
+    }
+
     get netPay() {
-        return this.gross - this.deductionTotal;
+        return this.gross - this.deductionTotal + this.netBonus;
     }
 
     sumLines(lines) {
@@ -201,6 +236,10 @@ export default class EmployeePaySlip extends LightningElement {
         const { kind, id, field } = event.target.dataset;
         const value = event.detail.value;
         this[kind] = this[kind].map((line) => line.id === id ? { ...line, [field]: value } : line);
+    }
+
+    handleBonusChange(event) {
+        this[event.target.dataset.field] = event.detail.value;
     }
 
     handleAddLine(event) {
@@ -236,6 +275,15 @@ export default class EmployeePaySlip extends LightningElement {
             this.showToast('Add a pay item description', 'Every amount needs a description.', 'error');
             valid = false;
         }
+        const tdsPercent = Number(this.bonusTdsPercent) || 0;
+        if (tdsPercent < 0 || tdsPercent > 99 || !Number.isInteger(tdsPercent)) {
+            this.showToast('Review bonus TDS', 'TDS must be a whole-number percentage from 0 to 99.', 'error');
+            valid = false;
+        }
+        if (this.bonusTotal > 0 && !this.bonusDescription.trim()) {
+            this.showToast('Add bonus details', 'Enter a description for the bonus amount.', 'error');
+            valid = false;
+        }
         return valid;
     }
 
@@ -244,6 +292,11 @@ export default class EmployeePaySlip extends LightningElement {
             description: line.description,
             amount: Number(line.amount) || 0
         }));
+        const toBonusLines = this.bonusTotal > 0 ? [{
+            description: this.bonusDescription,
+            amount: this.bonusTotal,
+            tdsPercent: Number(this.bonusTdsPercent) || 0
+        }] : [];
         return JSON.stringify({
             payPeriod: this.payPeriod,
             employeeName: this.employeeName,
@@ -258,7 +311,8 @@ export default class EmployeePaySlip extends LightningElement {
             paidDays: this.paidDays,
             lopDays: this.lopDays,
             earnings: toPayLines(this.earnings),
-            deductions: toPayLines(this.deductions)
+            deductions: toPayLines(this.deductions),
+            bonuses: toBonusLines
         });
     }
 

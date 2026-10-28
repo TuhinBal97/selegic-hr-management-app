@@ -152,9 +152,27 @@
                             </tbody>
                         </table>
 
+                        <apex:outputPanel layout="none" rendered="{!payslip.hasBonuses}">
+                        <table class="payslip-section pay-table">
+                            <colgroup><col width="28%"/><col width="22%"/><col width="25%"/><col width="25%"/></colgroup>
+                            <thead><tr>
+                                <th><apex:outputText value="{!payslip.bonusTitle}" escape="true"/></th><th class="amount">Bonus Amount</th>
+                                <th class="amount">TDS Deducted</th><th class="amount"><apex:outputText value="{!payslip.netBonusLabel}" escape="true"/></th>
+                            </tr></thead>
+                            <tbody>
+                                <apex:repeat value="{!payslip.bonuses}" var="bonus"><tr>
+                                    <td><apex:outputText value="{!bonus.description}" escape="true"/></td>
+                                    <td class="amount">INR&#160;<apex:outputText value="{!bonus.amountFormatted}" escape="true"/></td>
+                                    <td class="amount"><apex:outputText value="{!bonus.tdsLabel}" escape="true"/><br/>INR&#160;<apex:outputText value="{!bonus.tdsAmountFormatted}" escape="true"/></td>
+                                    <td class="amount"><apex:outputText value="{!bonus.netLabel}" escape="true"/><br/>INR&#160;<apex:outputText value="{!bonus.netAmountFormatted}" escape="true"/></td>
+                                </tr></apex:repeat>
+                            </tbody>
+                        </table>
+                        </apex:outputPanel>
+
                         <table class="payslip-total">
                             <tr>
-                                <td class="words-cell" width="58%"><div class="words-title">Amount in Words</div><div class="words-value"><apex:outputText value="{!payslip.amountInWords}" escape="true"/></div><div class="calculation">Gross Earnings - Total Deductions</div></td>
+                                <td class="words-cell" width="58%"><div class="words-title">Amount in Words</div><div class="words-value"><apex:outputText value="{!payslip.amountInWords}" escape="true"/></div><div class="calculation"><apex:outputText value="{!payslip.calculationLabel}" escape="true"/></div></td>
                                 <td class="totals-cell" width="42%"><table class="totals-summary">
                                     <tr><td><strong>Gross Earnings</strong></td><td class="amount"><apex:outputText value="{!payslip.grossFormatted}" escape="true"/></td></tr>
                                     <tr><td><strong>Total Deductions</strong></td><td class="amount"><apex:outputText value="{!payslip.deductionsFormatted}" escape="true"/></td></tr>

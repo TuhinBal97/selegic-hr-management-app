@@ -52,6 +52,8 @@ public with sharing class PayrollDocumentController {
             } else {
                 Decimal gross = sumLines(payload.get('earnings'));
                 Decimal deductions = sumLines(payload.get('deductions'));
+                sumLines(payload.get('bonuses'));
+                sumBonusTds(payload.get('bonuses'));
                 if (gross <= 0) {
                     throw new AuraHandledException('Enter at least one earning amount greater than zero.');
                 }
@@ -97,6 +99,29 @@ public with sharing class PayrollDocumentController {
         return total;
     }
 
+    private static Decimal sumBonusTds(Object rawLines) {
+        Decimal totalTds = 0;
+        for (Object rawLine : asLines(rawLines)) {
+            Map<String, Object> line;
+            try {
+                line = (Map<String, Object>) rawLine;
+            } catch (Exception invalidLine) {
+                throw new AuraHandledException('Review the bonus line items.');
+            }
+            totalTds += bonusTdsAmount(line);
+        }
+        return totalTds;
+    }
+
+    private static Decimal bonusTdsAmount(Map<String, Object> line) {
+        Decimal amount = lineAmount(line);
+        Decimal tdsPercent = lineAmount(new Map<String, Object>{ 'amount' => line.get('tdsPercent') });
+        if (tdsPercent < 0 || tdsPercent > 99 || tdsPercent != tdsPercent.setScale(0)) {
+            throw new AuraHandledException('TDS must be a whole-number percentage from 0 to 99.');
+        }
+        return (amount * tdsPercent / 100).setScale(2);
+    }
+
     private static Blob renderPdf(String documentType, Map<String, Object> payload) {
         try {
             Blob pdf;
@@ -137,7 +162,9 @@ public with sharing class PayrollDocumentController {
     private static Blob renderPayslipVisualforcePdf(Map<String, Object> payload) {
         Decimal gross = sumLines(payload.get('earnings'));
         Decimal deductions = sumLines(payload.get('deductions'));
-        Decimal netPay = gross - deductions;
+        Decimal bonus = sumLines(payload.get('bonuses'));
+        Decimal bonusTds = sumBonusTds(payload.get('bonuses'));
+        Decimal netPay = gross - deductions + bonus - bonusTds;
         String amountInWords = indianRupeesInWords(netPay);
         if (netPay != 1) {
             amountInWords = amountInWords.replace('Indian Rupee ', 'Indian Rupees ');
@@ -229,6 +256,7 @@ public with sharing class PayrollDocumentController {
     private static String buildPayslipHtml(Map<String, Object> payslip) {
         String earningRows = '';
         String deductionRows = '';
+        String bonusRows = '';
         for (Object rawLine : asLines(payslip.get('earnings'))) {
             Map<String, Object> line = (Map<String, Object>) rawLine;
             if (line != null) {
@@ -243,11 +271,41 @@ public with sharing class PayrollDocumentController {
                     '</td><td class="amount">₹' + formatAmount(lineAmount(line)) + '</td></tr>';
             }
         }
+        Decimal bonusTotal = sumLines(payslip.get('bonuses'));
+        Decimal bonusTdsTotal = sumBonusTds(payslip.get('bonuses'));
+        String bonusTitle = 'Special Bonus';
+        String netBonusLabel = 'Net Special Bonus';
+        Boolean hasNetBonusLabel = false;
+        for (Object rawLine : asLines(payslip.get('bonuses'))) {
+            Map<String, Object> line = (Map<String, Object>) rawLine;
+            if (line == null) {
+                continue;
+            }
+            Decimal amount = lineAmount(line);
+            Decimal tdsPercent = lineAmount(new Map<String, Object>{ 'amount' => line.get('tdsPercent') });
+            Decimal tds = bonusTdsAmount(line);
+            String bonusDescription = String.valueOf(line.get('description')).trim();
+            String rowNetBonusLabel = 'Net ' + bonusDescription;
+            if (amount > 0 && !hasNetBonusLabel) {
+                bonusTitle = bonusDescription;
+                netBonusLabel = 'Net ' + bonusDescription;
+                hasNetBonusLabel = true;
+            }
+            String tdsPercentLabel = String.valueOf(tdsPercent.setScale(0));
+            bonusRows += '<tr><td>' + escapeHtml(bonusDescription) +
+                '</td><td class="amount">INR ' + formatAmount(amount) +
+                '</td><td class="amount">TDS deducted @' + tdsPercentLabel + '%<br/>INR ' + formatAmount(tds) +
+                '</td><td class="amount">' + escapeHtml(rowNetBonusLabel) + '<br/>INR ' + formatAmount(amount - tds) + '</td></tr>';
+        }
 
         Decimal gross = sumLines(payslip.get('earnings'));
         Decimal deductionsTotal = sumLines(payslip.get('deductions'));
-        Decimal netPay = gross - deductionsTotal;
+        Decimal netBonus = bonusTotal - bonusTdsTotal;
+        Decimal netPay = gross - deductionsTotal + netBonus;
         String netFormatted = formatAmount(netPay);
+        String netFormula = bonusTotal > 0
+            ? 'Gross Earnings - Total Deductions + ' + netBonusLabel
+            : 'Gross Earnings - Total Deductions';
         String payslipMonth = String.valueOf(payslip.get('payslipMonth'));
         if (String.isBlank(payslipMonth) || payslipMonth == 'null') {
             Date today = Date.today();
@@ -261,6 +319,11 @@ public with sharing class PayrollDocumentController {
         String amountInWords = escapeHtml(
             indianRupeesInWords(netPay).replace('Indian Rupees ', '').replace('Indian Rupee ', '')
         );
+        String bonusSection = '';
+        if (bonusTotal > 0) {
+            bonusSection = '<table class="bonus-grid" border="1" cellpadding="0" cellspacing="0"><tr><th>' + escapeHtml(bonusTitle) + '</th><th class="amount">Bonus Amount</th><th class="amount">TDS Deducted</th><th class="amount">' + escapeHtml(netBonusLabel) + '</th></tr>' +
+                bonusRows + '</table>';
+        }
         return '<html><head><meta charset="UTF-8"/><style type="text/css">' +
             '@page { size: A4; margin: 12mm; }' +
             'body { font-family: Arial, Helvetica, sans-serif; color: #333; font-size: 9pt; }' +
@@ -288,6 +351,10 @@ public with sharing class PayrollDocumentController {
             '.pay-table .amount { font-weight: bold; text-align: right; white-space: nowrap; }' +
             '.pay-table .totals-row { background: #f4f5f7; font-weight: bold; }' +
             '.pay-table .totals-row td { border: 0; }' +
+            '.bonus-grid { border: 1px solid #cbd2df; border-radius: 8px; margin-top: 12px; }' +
+            '.bonus-grid th, .bonus-grid td { padding: 7px; border-bottom: 1px solid #f0f0f0; }' +
+            '.bonus-grid th { color: #444; font-size: 8pt; text-align: left; }' +
+            '.bonus-grid .amount { text-align: right; white-space: nowrap; }' +
             '.payable { border: 1px solid #cbd2df; border-radius: 8px; margin-top: 14px; }' +
             '.payable td { padding: 10px; }' +
             '.payable-amount { background: #edfaf0; font-size: 13pt; font-weight: bold; text-align: right; white-space: nowrap; }' +
@@ -323,7 +390,8 @@ public with sharing class PayrollDocumentController {
             '<td width="50%" style="border-left:1px solid #cbd2df"><table class="pay-table"><tr><th>DEDUCTIONS</th><th class="amount">AMOUNT</th></tr>' + deductionRows +
             '<tr class="totals-row"><td>Total Deductions</td><td class="amount">₹' + formatAmount(deductionsTotal) + '</td></tr></table></td>' +
             '</tr></table>' +
-            '<table class="payable" border="1" cellpadding="0" cellspacing="0"><tr><td><strong>TOTAL NET PAYABLE</strong><br/><span class="muted">Gross Earnings - Total Deductions</span></td>' +
+            bonusSection +
+            '<table class="payable" border="1" cellpadding="0" cellspacing="0"><tr><td><strong>TOTAL NET PAYABLE</strong><br/><span class="muted">' + netFormula + '</span></td>' +
             '<td class="payable-amount">₹' + netFormatted + '</td></tr></table>' +
             '<div class="amount-words">Amount In Words: <strong>' + amountInWords + '</strong></div>' +
             '<div class="footer">-- This is a system-generated document. --</div></body></html>';

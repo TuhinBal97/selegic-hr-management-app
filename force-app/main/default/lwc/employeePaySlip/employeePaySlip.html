@@ -15,8 +15,8 @@
                 </div>
             </div>
 
-            <div class="slds-grid slds-wrap slds-gutters slds-m-bottom_large">
-                <section class="slds-col slds-size_1-of-1 slds-large-size_7-of-12 employee-summary">
+            <div class="employee-overview slds-m-bottom_large">
+                <section class="employee-summary">
                     <h2 class="section-label slds-m-bottom_small">EMPLOYEE SUMMARY</h2>
                     <div class="slds-grid slds-wrap slds-gutters">
                         <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2"><lightning-record-picker label="Employee Name" placeholder="Search employees..." object-api-name={employeeObjectApiName} onchange={handleEmployeeChange} required></lightning-record-picker></div>
@@ -31,7 +31,7 @@
                         <div class="slds-text-color_error slds-m-top_small" role="status">{employeeProfileError}</div>
                     </template>
                 </section>
-                <section class="slds-col slds-size_1-of-1 slds-large-size_5-of-12 net-summary">
+                <section class="net-summary">
                     <div class="net-highlight slds-p-around_medium">
                         <span>Total Net Pay</span>
                         <lightning-formatted-number value={netPay} format-style="currency" currency-code="INR" maximum-fraction-digits="2"></lightning-formatted-number>
@@ -55,8 +55,8 @@
                 </div>
             </section>
 
-            <div class="slds-grid slds-wrap slds-gutters slds-m-top_large">
-                <section class="slds-col slds-size_1-of-1 slds-large-size_1-of-2 pay-section">
+            <div class="pay-grid slds-m-top_large">
+                <section class="pay-section earnings-section">
                     <div class="section-heading slds-m-bottom_small">
                         <div><h2 class="slds-text-heading_small">Earnings</h2><p class="intro">Add or remove earning lines.</p></div>
                         <lightning-button label="Add Earning" icon-name="utility:add" data-kind="earnings" onclick={handleAddLine}></lightning-button>
@@ -71,20 +71,41 @@
                     <div class="subtotal slds-p-vertical_small"><span>Gross Earnings</span><lightning-formatted-number value={gross} format-style="currency" currency-code="INR" maximum-fraction-digits="2"></lightning-formatted-number></div>
                 </section>
 
-                <section class="slds-col slds-size_1-of-1 slds-large-size_1-of-2 pay-section">
-                    <div class="section-heading slds-m-bottom_small">
-                        <div><h2 class="slds-text-heading_small">Deductions</h2><p class="intro">Add or remove deduction lines.</p></div>
-                        <lightning-button label="Add Deduction" icon-name="utility:add" data-kind="deductions" onclick={handleAddLine}></lightning-button>
-                    </div>
-                    <template for:each={deductions} for:item="line">
-                        <div key={line.id} class="line-row slds-grid slds-gutters slds-p-vertical_x-small">
-                            <div class="slds-col slds-size_8-of-12"><lightning-input variant="label-hidden" label="Deduction description" value={line.description} data-kind="deductions" data-id={line.id} data-field="description" onchange={handleLineChange} placeholder="Deduction description"></lightning-input></div>
-                            <div class="slds-col slds-size_3-of-12"><lightning-input type="number" variant="label-hidden" label="Deduction amount in rupees" value={line.amount} data-kind="deductions" data-id={line.id} data-field="amount" min="0" step="0.01" onchange={handleLineChange} placeholder="0.00"></lightning-input></div>
-                            <div class="slds-col slds-size_1-of-12 remove-cell"><lightning-button-icon icon-name="utility:delete" variant="bare" alternative-text="Remove deduction" title="Remove deduction" data-kind="deductions" data-id={line.id} onclick={handleRemoveLine}></lightning-button-icon></div>
+                <div class="pay-side-column">
+                    <section class="pay-section">
+                        <div class="section-heading slds-m-bottom_small">
+                            <div><h2 class="slds-text-heading_small">Deductions</h2><p class="intro">Add or remove deduction lines.</p></div>
+                            <lightning-button label="Add Deduction" icon-name="utility:add" data-kind="deductions" onclick={handleAddLine}></lightning-button>
                         </div>
-                    </template>
-                    <div class="subtotal slds-p-vertical_small"><span>Total Deductions</span><lightning-formatted-number value={deductionTotal} format-style="currency" currency-code="INR" maximum-fraction-digits="2"></lightning-formatted-number></div>
-                </section>
+                        <template for:each={deductions} for:item="line">
+                            <div key={line.id} class="line-row slds-grid slds-gutters slds-p-vertical_x-small">
+                                <div class="slds-col slds-size_8-of-12"><lightning-input variant="label-hidden" label="Deduction description" value={line.description} data-kind="deductions" data-id={line.id} data-field="description" onchange={handleLineChange} placeholder="Deduction description"></lightning-input></div>
+                                <div class="slds-col slds-size_3-of-12"><lightning-input type="number" variant="label-hidden" label="Deduction amount in rupees" value={line.amount} data-kind="deductions" data-id={line.id} data-field="amount" min="0" step="0.01" onchange={handleLineChange} placeholder="0.00"></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-12 remove-cell"><lightning-button-icon icon-name="utility:delete" variant="bare" alternative-text="Remove deduction" title="Remove deduction" data-kind="deductions" data-id={line.id} onclick={handleRemoveLine}></lightning-button-icon></div>
+                            </div>
+                        </template>
+                        <div class="subtotal slds-p-vertical_small"><span>Total Deductions</span><lightning-formatted-number value={deductionTotal} format-style="currency" currency-code="INR" maximum-fraction-digits="2"></lightning-formatted-number></div>
+                    </section>
+
+                    <section class="pay-section bonus-section">
+                        <div class="section-heading slds-m-bottom_small">
+                            <div>
+                                <h2 class="slds-text-heading_small">{bonusTitle}</h2>
+                                <p class="intro">Set the bonus name shown on the payslip. TDS applies only to this bonus; leave the amount blank when none applies. Salary Bonus is entered in Earnings above.</p>
+                            </div>
+                        </div>
+                        <div class="line-row slds-grid slds-wrap slds-gutters slds-p-vertical_x-small">
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12"><lightning-input variant="label-hidden" label="Bonus name shown on payslip" value={bonusDescription} data-field="bonusDescription" onchange={handleBonusChange} placeholder="Special Bonus"></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-12"><lightning-input type="number" variant="label-hidden" label="Special bonus amount in rupees" value={bonusAmount} data-field="bonusAmount" min="0" step="0.01" onchange={handleBonusChange} placeholder="Special bonus amount"></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-12"><lightning-input type="number" variant="label-hidden" label="TDS percentage on special bonus" value={bonusTdsPercent} data-field="bonusTdsPercent" min="0" max="99" step="1" onchange={handleBonusChange} placeholder="TDS % (optional)"></lightning-input></div>
+                        </div>
+                        <div class="subtotal bonus-totals slds-p-vertical_small">
+                            <span>{bonusTotalLabel} <lightning-formatted-number value={bonusTotal} format-style="currency" currency-code="INR" maximum-fraction-digits="2"></lightning-formatted-number></span>
+                            <span>{bonusTdsLabel} <lightning-formatted-number value={bonusTdsTotal} format-style="currency" currency-code="INR" maximum-fraction-digits="2"></lightning-formatted-number></span>
+                            <strong>{netBonusLabel} <lightning-formatted-number value={netBonus} format-style="currency" currency-code="INR" maximum-fraction-digits="2"></lightning-formatted-number></strong>
+                        </div>
+                    </section>
+                </div>
             </div>
 
             <div class="net-panel slds-m-top_medium slds-p-around_medium">

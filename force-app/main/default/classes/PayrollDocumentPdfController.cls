@@ -65,8 +65,18 @@ public with sharing class PayrollDocumentPdfController {
         if (data.deductions == null) {
             data.deductions = new List<PayLine>();
         }
+        if (data.bonuses == null) {
+            data.bonuses = new List<BonusLine>();
+        }
         Decimal gross = normalizePayLines(data.earnings);
         Decimal deductions = normalizePayLines(data.deductions);
+        Decimal bonusTotal = normalizeBonusLines(data.bonuses);
+        Decimal bonusTds = 0;
+        for (BonusLine bonus : data.bonuses) {
+            if (bonus != null && bonus.tdsAmount != null) {
+                bonusTds += bonus.tdsAmount;
+            }
+        }
         if (gross <= 0) {
             throw new VisualforceException('Enter at least one earning amount greater than zero.');
         }
@@ -75,7 +85,52 @@ public with sharing class PayrollDocumentPdfController {
         }
         data.grossFormatted = formatPayslipAmount(gross);
         data.deductionsFormatted = formatPayslipAmount(deductions);
-        data.netPayFormatted = formatPayslipAmount(gross - deductions);
+        data.bonusFormatted = formatPayslipAmount(bonusTotal);
+        data.bonusTdsFormatted = formatPayslipAmount(bonusTds);
+        data.netBonusFormatted = formatPayslipAmount(bonusTotal - bonusTds);
+        data.hasBonuses = bonusTotal > 0;
+        data.bonusTitle = 'Special Bonus';
+        data.netBonusLabel = 'Net Special Bonus';
+        for (BonusLine bonus : data.bonuses) {
+            if (bonus != null && bonus.amount != null && bonus.amount > 0) {
+                data.bonusTitle = String.isBlank(bonus.description) ? 'Special Bonus' : bonus.description.trim();
+                data.netBonusLabel = bonus.netLabel;
+                break;
+            }
+        }
+        data.calculationLabel = data.hasBonuses
+            ? 'Gross Earnings - Total Deductions + ' + data.netBonusLabel
+            : 'Gross Earnings - Total Deductions';
+        data.netPayFormatted = formatPayslipAmount(gross - deductions + bonusTotal - bonusTds);
+    }
+
+    private static Decimal normalizeBonusLines(List<BonusLine> lines) {
+        Decimal total = 0;
+        for (BonusLine line : lines) {
+            if (line == null) {
+                continue;
+            }
+            Decimal amount = line.amount == null ? 0 : line.amount;
+            Decimal tdsPercent = line.tdsPercent == null ? 0 : line.tdsPercent;
+            if (amount < 0 || tdsPercent < 0) {
+                throw new VisualforceException('Bonus and TDS percentages cannot be negative.');
+            }
+            if (tdsPercent > 99 || tdsPercent != tdsPercent.setScale(0)) {
+                throw new VisualforceException('TDS must be a whole-number percentage from 0 to 99.');
+            }
+            if (amount > 0 && String.isBlank(line.description)) {
+                throw new VisualforceException('Add a description to each bonus with an amount.');
+            }
+            line.tdsPercent = tdsPercent;
+            line.tdsAmount = (amount * tdsPercent / 100).setScale(2);
+            line.tdsLabel = 'TDS deducted @' + String.valueOf(tdsPercent.setScale(0)) + '%';
+            line.netLabel = 'Net ' + (String.isBlank(line.description) ? 'Special Bonus' : line.description.trim());
+            line.amountFormatted = formatPayslipAmount(amount);
+            line.tdsAmountFormatted = formatPayslipAmount(line.tdsAmount);
+            line.netAmountFormatted = formatPayslipAmount(amount - line.tdsAmount);
+            total += amount;
+        }
+        return total;
     }
 
     private static Decimal normalizePayLines(List<PayLine> lines) {
@@ -173,10 +228,30 @@ public with sharing class PayrollDocumentPdfController {
         public String lopDays { get; set; }
         public String grossFormatted { get; set; }
         public String deductionsFormatted { get; set; }
+        public String bonusFormatted { get; set; }
+        public String bonusTdsFormatted { get; set; }
+        public String netBonusFormatted { get; set; }
+        public String bonusTitle { get; set; }
+        public String netBonusLabel { get; set; }
+        public String calculationLabel { get; set; }
+        public Boolean hasBonuses { get; set; }
         public String netPayFormatted { get; set; }
         public String amountInWords { get; set; }
         public List<PayLine> earnings { get; set; }
         public List<PayLine> deductions { get; set; }
+        public List<BonusLine> bonuses { get; set; }
+    }
+
+    public class BonusLine {
+        public String description { get; set; }
+        public Decimal amount { get; set; }
+        public Decimal tdsPercent { get; set; }
+        public Decimal tdsAmount { get; set; }
+        public String tdsLabel { get; set; }
+        public String netLabel { get; set; }
+        public String amountFormatted { get; set; }
+        public String tdsAmountFormatted { get; set; }
+        public String netAmountFormatted { get; set; }
     }
 
     public class PayLine {

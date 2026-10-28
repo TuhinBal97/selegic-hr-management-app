@@ -13,74 +13,75 @@
 
             <p class="intro slds-m-bottom_medium">Enter the invoice details and monthly office expenses. The total updates as you edit the amounts.</p>
 
-            <div class="slds-grid slds-wrap slds-gutters">
-                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+            <section class="invoice-card slds-m-top_medium">
+                <h2 class="section-label slds-m-bottom_small">INVOICE DETAILS</h2>
+                <div class="invoice-fields-grid">
                     <lightning-input label="Invoice No" value={invoiceNumber} data-field="invoiceNumber" onchange={handleHeaderChange} required></lightning-input>
-                </div>
-                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
                     <lightning-input type="date" label="Invoice Date" value={invoiceDate} data-field="invoiceDate" onchange={handleHeaderChange} required></lightning-input>
-                </div>
-                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
                     <lightning-input label="Terms" value={terms} data-field="terms" onchange={handleHeaderChange} required></lightning-input>
-                </div>
-                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
                     <lightning-input type="date" label="Due Date" value={dueDate} data-field="dueDate" onchange={handleHeaderChange} required></lightning-input>
                 </div>
-            </div>
+            </section>
 
-            <div class="slds-grid slds-wrap slds-gutters slds-m-top_large">
-                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 party-input">
-                    <h2 class="slds-text-heading_small slds-m-bottom_x-small">Bill To</h2>
+            <div class="party-grid slds-m-top_large">
+                <section class="invoice-card party-input">
+                    <h2 class="section-label slds-m-bottom_small">BILL TO</h2>
                     <lightning-input label="Name" value={billToName} data-field="billToName" onchange={handleHeaderChange} required></lightning-input>
                     <lightning-textarea label="Address" value={billToAddress} data-field="billToAddress" onchange={handleHeaderChange} rows="3"></lightning-textarea>
-                </div>
-                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 party-input">
-                    <h2 class="slds-text-heading_small slds-m-bottom_x-small">Ship To</h2>
+                </section>
+                <section class="invoice-card party-input">
+                    <h2 class="section-label slds-m-bottom_small">SHIP TO</h2>
                     <lightning-textarea label="Address" value={shipToAddress} data-field="shipToAddress" onchange={handleHeaderChange} rows="5"></lightning-textarea>
-                </div>
+                </section>
             </div>
 
-            <div class="section-heading slds-m-top_large slds-m-bottom_small">
-                <div>
-                    <h2 class="slds-text-heading_small">Invoice Items</h2>
-                    <p class="intro">Add, rename, or remove rows as needed.</p>
+            <section class="invoice-card items-card slds-m-top_large">
+                <div class="section-heading slds-m-bottom_small">
+                    <div>
+                        <h2 class="slds-text-heading_small">Invoice Items</h2>
+                        <p class="intro">Add, rename, or remove rows as needed.</p>
+                    </div>
+                    <lightning-button label="Add Item" icon-name="utility:add" onclick={handleAddLine}></lightning-button>
                 </div>
-                <lightning-button label="Add Item" icon-name="utility:add" onclick={handleAddLine}></lightning-button>
-            </div>
 
-            <div class="line-header slds-grid slds-gutters slds-p-horizontal_small slds-p-vertical_x-small">
-                <div class="slds-col slds-size_1-of-12">#</div>
-                <div class="slds-col slds-size_7-of-12">Item &amp; Description</div>
-                <div class="slds-col slds-size_3-of-12 amount-heading">Amount (INR)</div>
-                <div class="slds-col slds-size_1-of-12"></div>
-            </div>
-            <template for:each={displayLines} for:item="line">
-                <div key={line.id} class="line-row slds-grid slds-wrap slds-gutters slds-p-horizontal_small slds-p-vertical_x-small">
-                    <div class="slds-col slds-size_1-of-12 line-number">{line.lineNumber}</div>
-                    <div class="slds-col slds-size_7-of-12">
-                        <lightning-input variant="label-hidden" label="Item description" value={line.description} data-id={line.id} data-field="description" onchange={handleLineChange} placeholder="Item description"></lightning-input>
-                    </div>
-                    <div class="slds-col slds-size_10-of-12 slds-medium-size_3-of-12">
-                        <lightning-input type="number" variant="label-hidden" label="Amount in rupees" value={line.amount} data-id={line.id} data-field="amount" min="0" step="0.01" onchange={handleLineChange} placeholder="0.00"></lightning-input>
-                    </div>
-                    <div class="slds-col slds-size_2-of-12 slds-medium-size_1-of-12 remove-cell">
-                        <lightning-button-icon icon-name="utility:delete" variant="bare" alternative-text="Remove item" title="Remove item" data-id={line.id} onclick={handleRemoveLine}></lightning-button-icon>
-                    </div>
+                <div class="line-header slds-grid slds-gutters slds-p-horizontal_small slds-p-vertical_x-small">
+                    <div class="slds-col slds-size_1-of-12">#</div>
+                    <div class="slds-col slds-size_7-of-12">Item &amp; Description</div>
+                    <div class="slds-col slds-size_3-of-12 amount-heading">Amount (INR)</div>
+                    <div class="slds-col slds-size_1-of-12"></div>
                 </div>
-            </template>
-            <template if:false={hasLines}>
-                <p class="empty-state slds-p-around_medium">No invoice items. Select Add Item to start.</p>
-            </template>
+                <template for:each={displayLines} for:item="line">
+                    <div key={line.id} class="line-row slds-grid slds-wrap slds-gutters slds-p-horizontal_small slds-p-vertical_x-small">
+                        <div class="slds-col slds-size_1-of-12 line-number">{line.lineNumber}</div>
+                        <div class="slds-col slds-size_7-of-12">
+                            <lightning-input variant="label-hidden" label="Item description" value={line.description} data-id={line.id} data-field="description" onchange={handleLineChange} placeholder="Item description"></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_10-of-12 slds-medium-size_3-of-12">
+                            <lightning-input type="number" variant="label-hidden" label="Amount in rupees" value={line.amount} data-id={line.id} data-field="amount" min="0" step="0.01" onchange={handleLineChange} placeholder="0.00"></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_2-of-12 slds-medium-size_1-of-12 remove-cell">
+                            <lightning-button-icon icon-name="utility:delete" variant="bare" alternative-text="Remove item" title="Remove item" data-id={line.id} onclick={handleRemoveLine}></lightning-button-icon>
+                        </div>
+                    </div>
+                </template>
+                <template if:false={hasLines}>
+                    <p class="empty-state slds-p-around_medium">No invoice items. Select Add Item to start.</p>
+                </template>
+            </section>
 
             <div class="total-panel slds-m-top_medium slds-p-around_medium">
                 <span>Total</span>
                 <lightning-formatted-number value={total} format-style="currency" currency-code="INR" minimum-fraction-digits="2" maximum-fraction-digits="2"></lightning-formatted-number>
             </div>
-            <p class="amount-in-words slds-m-top_small"><strong>Total In Words:</strong> <em>{totalInWords}</em></p>
-
-            <div class="slds-m-top_medium">
-                <lightning-textarea label="Notes" value={notes} data-field="notes" onchange={handleHeaderChange} rows="3"></lightning-textarea>
+            <div class="amount-words-panel slds-m-top_small">
+                <strong>Total in Words</strong>
+                <em>{totalInWords}</em>
             </div>
+
+            <section class="invoice-card notes-card slds-m-top_large">
+                <h2 class="section-label slds-m-bottom_small">ADDITIONAL NOTES</h2>
+                <lightning-textarea label="Notes" value={notes} data-field="notes" onchange={handleHeaderChange} rows="3"></lightning-textarea>
+            </section>
 
             <div class="actions slds-m-top_medium">
                 <lightning-button label="Download Invoice PDF" variant="brand" onclick={handleDownload} disabled={isBusy}></lightning-button>
