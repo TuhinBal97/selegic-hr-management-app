@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Employee_ID__c</fullName>
+    <caseSensitive>false</caseSensitive>
+    <description>A unique identifier assigned to each employee to distinguish employee records within the organization.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Enter the unique Employee ID assigned to this employee. This field is required.</inlineHelpText>
+    <label>Employee ID</label>
+    <length>20</length>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>true</unique>
+</CustomField>

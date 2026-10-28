@@ -19,11 +19,17 @@
                 <section class="slds-col slds-size_1-of-1 slds-large-size_7-of-12 employee-summary">
                     <h2 class="section-label slds-m-bottom_small">EMPLOYEE SUMMARY</h2>
                     <div class="slds-grid slds-wrap slds-gutters">
-                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2"><lightning-input label="Employee Name" value={employeeName} data-field="employeeName" onchange={handleHeaderChange} required></lightning-input></div>
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2"><lightning-record-picker label="Employee Name" placeholder="Search employees..." object-api-name={employeeObjectApiName} onchange={handleEmployeeChange} required></lightning-record-picker></div>
                         <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2"><lightning-input label="Employee ID" value={employeeId} data-field="employeeId" onchange={handleHeaderChange}></lightning-input></div>
                         <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2"><lightning-input label="Pay Period" value={payPeriod} data-field="payPeriod" onchange={handleHeaderChange} required></lightning-input></div>
                         <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2"><lightning-input type="date" label="Pay Date" value={payDate} data-field="payDate" onchange={handleHeaderChange}></lightning-input></div>
                     </div>
+                    <template if:true={isLoadingEmployeeProfile}>
+                        <div class="slds-is-relative slds-m-top_small" aria-live="polite"><lightning-spinner alternative-text="Loading employee payroll details" size="small"></lightning-spinner></div>
+                    </template>
+                    <template if:true={employeeProfileError}>
+                        <div class="slds-text-color_error slds-m-top_small" role="status">{employeeProfileError}</div>
+                    </template>
                 </section>
                 <section class="slds-col slds-size_1-of-1 slds-large-size_5-of-12 net-summary">
                     <div class="net-highlight slds-p-around_medium">
@@ -86,7 +92,7 @@
                 <lightning-formatted-number value={netPay} format-style="currency" currency-code="INR" maximum-fraction-digits="2"></lightning-formatted-number>
             </div>
             <div class="actions slds-m-top_medium">
-                <lightning-button label="Download Payslip PDF" variant="brand" onclick={handleDownload} disabled={isBusy}></lightning-button>
+                <lightning-button label="Download Payslip PDF" variant="brand" onclick={handleDownload} disabled={isDownloadDisabled}></lightning-button>
             </div>
             <template if:true={isBusy}>
                 <div class="spinner-wrap"><lightning-spinner alternative-text="Preparing payslip" size="small"></lightning-spinner></div>

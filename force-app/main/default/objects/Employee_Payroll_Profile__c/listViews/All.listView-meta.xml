@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All</fullName>
+    <columns>Employee_ID__c</columns>
+    <columns>Employee__c</columns>
+    <columns>Designation__c</columns>
+    <columns>Date_of_Joining__c</columns>
+    <columns>PF_Number__c</columns>
+    <columns>UAN_Number__c</columns>
+    <columns>Bank_Account_Number__c</columns>
+    <columns>PAN_Number__c</columns>
+    <filterScope>Everything</filterScope>
+    <label>All</label>
+</ListView>

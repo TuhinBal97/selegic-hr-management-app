@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Leave_Year__c</fullName>
+    <description>The year for which this employee&apos;s leave entitlement is allocated.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Enter the leave year, for example 2026.</inlineHelpText>
+    <label>Leave Year</label>
+    <precision>4</precision>
+    <required>true</required>
+    <scale>0</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

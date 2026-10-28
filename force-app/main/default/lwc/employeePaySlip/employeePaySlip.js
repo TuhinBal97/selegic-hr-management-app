@@ -1,6 +1,12 @@
-import { LightningElement } from 'lwc';
+import { LightningElement, wire } from 'lwc';
 import generatePayslipPdf from '@salesforce/apex/PayrollDocumentController.generatePayslipPdf';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import { getFieldValue, getRecord } from 'lightning/uiRecordApi';
+import EMPLOYEE_OBJECT from '@salesforce/schema/Employee__c';
+import EMPLOYEE_NAME_FIELD from '@salesforce/schema/Employee__c.Name';
+import getProfileForEmployee from '@salesforce/apex/EmployeePayrollProfileController.getProfileForEmployee';
+
+const EMPLOYEE_FIELDS = [EMPLOYEE_NAME_FIELD];
 
 let nextLineId = 0;
 
@@ -67,6 +73,7 @@ function downloadBase64Pdf(component, base64, fileName) {
 
 export default class EmployeePaySlip extends LightningElement {
     employeeName = '';
+    selectedEmployeeId;
     employeeId = '';
     designation = '';
     payPeriod = '';
@@ -92,6 +99,83 @@ export default class EmployeePaySlip extends LightningElement {
         makeLine('P-Tax')
     ];
     isBusy = false;
+    isLoadingEmployeeProfile = false;
+    employeeProfileError = '';
+    employeeProfile;
+
+    @wire(getRecord, { recordId: '$selectedEmployeeId', fields: EMPLOYEE_FIELDS })
+    wiredEmployee({ data }) {
+        if (data) {
+            this.employeeName = getFieldValue(data, EMPLOYEE_NAME_FIELD) || '';
+        }
+    }
+
+    @wire(getProfileForEmployee, { employeeId: '$selectedEmployeeId' })
+    wiredEmployeeProfile({ data, error }) {
+        if (data !== undefined) {
+            this.isLoadingEmployeeProfile = false;
+            this.employeeProfile = data || undefined;
+            this.employeeProfileError = data ? '' : 'No payroll profile exists for this employee.';
+            this.employeeId = data?.Employee_ID__c || '';
+            this.designation = data?.Designation__c || '';
+            this.bankAccountNumber = data?.Bank_Account_Number__c || '';
+            this.pfNumber = data?.PF_Number__c || '';
+            this.uanNumber = data?.UAN_Number__c || '';
+            this.pan = data?.PAN_Number__c || '';
+            this.dateOfJoining = data?.Date_of_Joining__c || '';
+        } else if (error) {
+            this.isLoadingEmployeeProfile = false;
+            this.employeeProfile = undefined;
+            this.employeeProfileError = errorMessage(error);
+        }
+    }
+
+    get employeeObjectApiName() {
+        return EMPLOYEE_OBJECT.objectApiName;
+    }
+
+    get isDownloadDisabled() {
+        return this.isBusy || this.isLoadingEmployeeProfile;
+    }
+
+    handleEmployeeChange(event) {
+        const selectedEmployeeId = event.detail.recordId;
+        if (selectedEmployeeId !== this.selectedEmployeeId) {
+            this.resetPayslipFields();
+        }
+        this.selectedEmployeeId = selectedEmployeeId;
+        this.employeeName = '';
+        this.isLoadingEmployeeProfile = Boolean(this.selectedEmployeeId);
+    }
+
+    resetPayslipFields() {
+        this.employeeId = '';
+        this.designation = '';
+        this.payPeriod = '';
+        this.payDate = '';
+        this.dateOfJoining = '';
+        this.pfNumber = '';
+        this.pan = '';
+        this.bankAccountNumber = '';
+        this.uanNumber = '';
+        this.paidDays = '';
+        this.lopDays = '';
+        this.employeeProfile = undefined;
+        this.employeeProfileError = '';
+        this.earnings = [
+            makeLine('Basic'),
+            makeLine('House Rent Allowance'),
+            makeLine('Conveyance'),
+            makeLine('CCA'),
+            makeLine('Gratuity'),
+            makeLine('Bonus'),
+            makeLine('BYOD')
+        ];
+        this.deductions = [
+            makeLine('Provident Fund'),
+            makeLine('P-Tax')
+        ];
+    }
 
     get gross() {
         return this.sumLines(this.earnings);
@@ -179,6 +263,14 @@ export default class EmployeePaySlip extends LightningElement {
     }
 
     async handleDownload() {
+        if (!this.selectedEmployeeId || !this.employeeProfile) {
+            this.showToast(
+                'Select an employee with a payroll profile',
+                this.employeeProfileError || 'Choose an employee that has an Employee Payroll Profile.',
+                'error'
+            );
+            return;
+        }
         if (!this.validateForm()) {
             return;
         }
