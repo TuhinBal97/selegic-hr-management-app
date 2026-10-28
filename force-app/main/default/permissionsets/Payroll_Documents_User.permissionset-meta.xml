@@ -8,10 +8,47 @@
         <apexClass>PayrollDocumentPdfController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
+    <classAccesses>
+        <apexClass>MonthlyOfficeInvoiceController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Monthly_Office_Invoice__c.Bill_To_Address__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Monthly_Office_Invoice__c.Ship_To_Address__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Monthly_Office_Invoice__c.Notes__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Monthly_Office_Invoice__c.Line_Items_JSON__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Monthly_Office_Invoice__c.Invoice_Total__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
     <label>Payroll Documents User</label>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>Monthly_Office_Invoice__c</object>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
     <pageAccesses>
         <apexPage>OfficeDocumentPdf</apexPage>
         <enabled>true</enabled>
     </pageAccesses>
 </PermissionSet>
-

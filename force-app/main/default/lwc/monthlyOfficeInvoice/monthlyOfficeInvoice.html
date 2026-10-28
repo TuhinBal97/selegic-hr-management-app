@@ -1,6 +1,6 @@
 <template>
     <lightning-card title="Monthly Office Invoice" icon-name="standard:orders">
-        <div class="slds-p-horizontal_medium slds-p-bottom_medium">
+        <div class="slds-p-horizontal_medium slds-p-bottom_medium" data-id="invoiceForm">
             <div class="invoice-letterhead slds-m-bottom_medium">
                 <div>
                     <strong>SELEGIC INDIA PRIVATE LIMITED</strong>
@@ -16,22 +16,22 @@
             <section class="invoice-card slds-m-top_medium">
                 <h2 class="section-label slds-m-bottom_small">INVOICE DETAILS</h2>
                 <div class="invoice-fields-grid">
-                    <lightning-input label="Invoice No" value={invoiceNumber} data-field="invoiceNumber" onchange={handleHeaderChange} required></lightning-input>
-                    <lightning-input type="date" label="Invoice Date" value={invoiceDate} data-field="invoiceDate" onchange={handleHeaderChange} required></lightning-input>
-                    <lightning-input label="Terms" value={terms} data-field="terms" onchange={handleHeaderChange} required></lightning-input>
-                    <lightning-input type="date" label="Due Date" value={dueDate} data-field="dueDate" onchange={handleHeaderChange} required></lightning-input>
+                    <lightning-input label="Invoice No" value={invoiceNumber} data-field="invoiceNumber" onchange={handleHeaderChange} disabled={isBusy} required></lightning-input>
+                    <lightning-input type="date" label="Invoice Date" value={invoiceDate} data-field="invoiceDate" onchange={handleHeaderChange} disabled={isBusy} required></lightning-input>
+                    <lightning-input label="Terms" value={terms} data-field="terms" onchange={handleHeaderChange} disabled={isBusy} required></lightning-input>
+                    <lightning-input type="date" label="Due Date" value={dueDate} data-field="dueDate" onchange={handleHeaderChange} disabled={isBusy} required></lightning-input>
                 </div>
             </section>
 
             <div class="party-grid slds-m-top_large">
                 <section class="invoice-card party-input">
                     <h2 class="section-label slds-m-bottom_small">BILL TO</h2>
-                    <lightning-input label="Name" value={billToName} data-field="billToName" onchange={handleHeaderChange} required></lightning-input>
-                    <lightning-textarea label="Address" value={billToAddress} data-field="billToAddress" onchange={handleHeaderChange} rows="3"></lightning-textarea>
+                    <lightning-input label="Name" value={billToName} data-field="billToName" onchange={handleHeaderChange} disabled={isBusy} required></lightning-input>
+                    <lightning-textarea label="Address" value={billToAddress} data-field="billToAddress" onchange={handleHeaderChange} disabled={isBusy} rows="3"></lightning-textarea>
                 </section>
                 <section class="invoice-card party-input">
                     <h2 class="section-label slds-m-bottom_small">SHIP TO</h2>
-                    <lightning-textarea label="Address" value={shipToAddress} data-field="shipToAddress" onchange={handleHeaderChange} rows="5"></lightning-textarea>
+                    <lightning-textarea label="Address" value={shipToAddress} data-field="shipToAddress" onchange={handleHeaderChange} disabled={isBusy} rows="5"></lightning-textarea>
                 </section>
             </div>
 
@@ -41,7 +41,7 @@
                         <h2 class="slds-text-heading_small">Invoice Items</h2>
                         <p class="intro">Add, rename, or remove rows as needed.</p>
                     </div>
-                    <lightning-button label="Add Item" icon-name="utility:add" onclick={handleAddLine}></lightning-button>
+                    <lightning-button label="Add Item" icon-name="utility:add" onclick={handleAddLine} disabled={isBusy}></lightning-button>
                 </div>
 
                 <div class="line-header slds-grid slds-gutters slds-p-horizontal_small slds-p-vertical_x-small">
@@ -54,13 +54,13 @@
                     <div key={line.id} class="line-row slds-grid slds-wrap slds-gutters slds-p-horizontal_small slds-p-vertical_x-small">
                         <div class="slds-col slds-size_1-of-12 line-number">{line.lineNumber}</div>
                         <div class="slds-col slds-size_7-of-12">
-                            <lightning-input variant="label-hidden" label="Item description" value={line.description} data-id={line.id} data-field="description" onchange={handleLineChange} placeholder="Item description"></lightning-input>
+                            <lightning-input variant="label-hidden" label="Item description" value={line.description} data-id={line.id} data-field="description" onchange={handleLineChange} placeholder="Item description" disabled={isBusy}></lightning-input>
                         </div>
                         <div class="slds-col slds-size_10-of-12 slds-medium-size_3-of-12">
-                            <lightning-input type="number" variant="label-hidden" label="Amount in rupees" value={line.amount} data-id={line.id} data-field="amount" min="0" step="0.01" onchange={handleLineChange} placeholder="0.00"></lightning-input>
+                            <lightning-input type="number" variant="label-hidden" label="Amount in rupees" value={line.amount} data-id={line.id} data-field="amount" min="0" step="0.01" onchange={handleLineChange} placeholder="0.00" disabled={isBusy}></lightning-input>
                         </div>
                         <div class="slds-col slds-size_2-of-12 slds-medium-size_1-of-12 remove-cell">
-                            <lightning-button-icon icon-name="utility:delete" variant="bare" alternative-text="Remove item" title="Remove item" data-id={line.id} onclick={handleRemoveLine}></lightning-button-icon>
+                            <lightning-button-icon icon-name="utility:delete" variant="bare" alternative-text="Remove item" title="Remove item" data-id={line.id} onclick={handleRemoveLine} disabled={isBusy}></lightning-button-icon>
                         </div>
                     </div>
                 </template>
@@ -80,12 +80,44 @@
 
             <section class="invoice-card notes-card slds-m-top_large">
                 <h2 class="section-label slds-m-bottom_small">ADDITIONAL NOTES</h2>
-                <lightning-textarea label="Notes" value={notes} data-field="notes" onchange={handleHeaderChange} rows="3"></lightning-textarea>
+                <lightning-textarea label="Notes" value={notes} data-field="notes" onchange={handleHeaderChange} disabled={isBusy} rows="3"></lightning-textarea>
             </section>
 
             <div class="actions slds-m-top_medium">
-                <lightning-button label="Download Invoice PDF" variant="brand" onclick={handleDownload} disabled={isBusy}></lightning-button>
+                <lightning-button label={invoiceActionLabel} variant="brand" onclick={handleDownload} disabled={isBusy}></lightning-button>
+                <template if:true={isEditingInvoice}>
+                    <lightning-button label="New Invoice" onclick={handleNewInvoice} disabled={isBusy}></lightning-button>
+                </template>
             </div>
+
+            <section class="invoice-card history-card slds-m-top_large">
+                <div class="section-heading slds-m-bottom_small">
+                    <div>
+                        <h2 class="slds-text-heading_small">Previous Invoices</h2>
+                        <p class="intro">Edit, download, or remove a saved invoice.</p>
+                    </div>
+                    <lightning-button label="Refresh" icon-name="utility:refresh" onclick={handleRefreshHistory} disabled={isHistoryRefreshDisabled}></lightning-button>
+                </div>
+                <template if:true={historyError}>
+                    <p class="history-error" role="alert">{historyError}</p>
+                </template>
+                <template if:true={isLoadingHistory}>
+                    <div class="history-spinner slds-is-relative"><lightning-spinner alternative-text="Loading invoice history" size="small"></lightning-spinner></div>
+                </template>
+                <template if:true={hasInvoiceHistory}>
+                    <lightning-datatable
+                        key-field="Id"
+                        data={invoiceHistory}
+                        columns={historyColumns}
+                        hide-checkbox-column
+                        onrowaction={handleHistoryAction}>
+                    </lightning-datatable>
+                </template>
+                <template if:true={showHistoryEmptyState}>
+                    <p class="empty-state slds-p-around_medium">No saved invoices yet. Your invoices will appear here after you save and download them.</p>
+                </template>
+            </section>
+
             <template if:true={isBusy}>
                 <div class="spinner-wrap"><lightning-spinner alternative-text="Preparing invoice" size="small"></lightning-spinner></div>
             </template>

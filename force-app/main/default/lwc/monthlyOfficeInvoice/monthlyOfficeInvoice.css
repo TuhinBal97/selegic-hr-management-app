@@ -97,6 +97,7 @@
     align-items: center;
     border-bottom: 1px solid #e9eef5;
     display: flex;
+    flex-wrap: wrap;
     gap: 1rem;
     justify-content: space-between;
     padding-bottom: 0.75rem;
@@ -158,6 +159,18 @@
     color: #5c5c5c;
     margin-top: 0.75rem;
     text-align: center;
+}
+
+.history-error {
+    background: #fff4f4;
+    border: 1px solid #f2caca;
+    border-radius: 0.4rem;
+    color: #8e2b2b;
+    padding: 0.75rem 0.85rem;
+}
+
+.history-spinner {
+    min-height: 3rem;
 }
 
 .total-panel {
