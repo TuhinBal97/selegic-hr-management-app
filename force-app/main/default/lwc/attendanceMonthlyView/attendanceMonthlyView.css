@@ -15,6 +15,8 @@
     --attendance-day-header: #f3f3f3;
     --attendance-summary-header: #eef2f6;
     --attendance-summary-cell: #fafbfc;
+    --attendance-row-hover: var(--slds-g-color-neutral-base-90, #e5e5e5);
+    --attendance-row-hover-edge: var(--slds-g-color-neutral-base-50, #747474);
     --attendance-neutral-status: #ffffff;
     --attendance-input-background: #ffffff;
     --attendance-status-wfh: #bde0fe;
@@ -39,6 +41,8 @@
     --attendance-day-header: #2a3545;
     --attendance-summary-header: #303d4f;
     --attendance-summary-cell: #202a38;
+    --attendance-row-hover: var(--slds-g-color-neutral-base-20, #2e2e2e);
+    --attendance-row-hover-edge: var(--slds-g-color-neutral-base-50, #747474);
     --attendance-neutral-status: #263243;
     --attendance-input-background: #202a38;
     color-scheme: dark;
@@ -179,6 +183,12 @@
     color: var(--attendance-text);
     border-color: var(--attendance-border);
     background-color: var(--attendance-surface);
+}
+
+.attendance-table tbody tr:hover > th,
+.attendance-table tbody tr:hover > td {
+    background-color: var(--attendance-row-hover);
+    box-shadow: inset 0 1px 0 var(--attendance-row-hover-edge), inset 0 -1px 0 var(--attendance-row-hover-edge);
 }
 
 .employee-column {
